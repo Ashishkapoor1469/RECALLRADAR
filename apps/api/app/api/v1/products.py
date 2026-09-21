@@ -26,6 +26,21 @@ def get_products(
     offset = (page - 1) * page_size
     return query.offset(offset).limit(page_size).all()
 
+@router.get("/attention")
+def get_products_needing_attention(
+    limit: int = Query(5, ge=1, le=20),
+    db: Session = Depends(get_db)
+):
+    """Ranks top products by transparent attention score using shared single source of truth."""
+    from app.api.v1.overview import get_shared_product_risk_list
+    ranked_items = get_shared_product_risk_list(db)
+    top_items = ranked_items[:limit]
+    return {
+        "items": top_items,
+        "total": len(top_items),
+        "limit": limit
+    }
+
 @router.get("/{product_id}")
 def get_product_detail(product_id: str, db: Session = Depends(get_db)):
     product = db.query(Product).filter(Product.id == product_id).first()
@@ -36,9 +51,14 @@ def get_product_detail(product_id: str, db: Session = Depends(get_db)):
     alerts = db.query(Alert).filter(Alert.product_id == product_id).all()
     signals = db.query(SafetySignal).filter(SafetySignal.product_id == product_id).all()
     
-    # Calculate current risk
+    # Calculate current risk consistently with Risk Queue
     snapshots = db.query(ProductRiskSnapshot).filter(ProductRiskSnapshot.product_id == product_id).order_by(ProductRiskSnapshot.snapshot_date.desc()).all()
-    current_risk = snapshots[0].risk_score if snapshots else (82.0 if "Charger" in product.name else 15.0)
+    if snapshots:
+        current_risk = snapshots[0].risk_score
+    else:
+        sig_count = len(signals)
+        max_sev = max([s.severity for s in signals], default=0)
+        current_risk = min(sig_count * 14.5 + max_sev * 10, 92.0) if sig_count > 0 else 12.0
 
     # Lead time calculation
     lead_time_weeks = None

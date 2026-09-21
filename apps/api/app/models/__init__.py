@@ -11,7 +11,8 @@ from app.models.models import (
     BacktestRun,
     BacktestResult,
     Conversation,
-    Message
+    Message,
+    ReviewSignal
 )
 
 __all__ = [
@@ -27,5 +28,6 @@ __all__ = [
     "BacktestRun",
     "BacktestResult",
     "Conversation",
-    "Message"
+    "Message",
+    "ReviewSignal"
 ]

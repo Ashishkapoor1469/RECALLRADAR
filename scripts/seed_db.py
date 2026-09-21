@@ -1,5 +1,6 @@
 import sys
 import os
+import csv
 from datetime import datetime
 
 # Add root apps/api directory to sys.path
@@ -10,17 +11,17 @@ from app.db.session import SessionLocal, engine
 from app.db.init_db import init_db
 from app.models import Product, Review, SafetyReport, Recall, SafetySignal
 from data.synthetic.generator import generate_synthetic_dataset
+from scripts.ingest_amazon_csv import ingest_csv
 
 def seed_database():
-    print("Initializing database tables...")
+    print("=== Seeding RecallRadar Database ===")
     init_db()
 
+    csv_path = r"c:\Users\hp\Desktop\RecallRadar\Musical_instruments_reviews.csv\Musical_instruments_reviews.csv"
+    
     db = SessionLocal()
     try:
-        print("Generating synthetic dataset...")
-        dataset = generate_synthetic_dataset()
-
-        # Clean existing records
+        # Clear existing tables
         print("Clearing existing database records...")
         db.query(SafetySignal).delete()
         db.query(Recall).delete()
@@ -28,93 +29,112 @@ def seed_database():
         db.query(Review).delete()
         db.query(Product).delete()
         db.commit()
+        db.close()
 
-        # Insert products
-        print(f"Inserting {len(dataset['products'])} products...")
+        # Phase 1: Ingest primary real CSV dataset (Musical Instruments)
+        if os.path.exists(csv_path):
+            print(f"Ingesting real CSV dataset: {csv_path}")
+            ingest_csv(csv_path)
+        else:
+            print(f"Warning: Real CSV file not found at {csv_path}")
+
+        # Phase 2: Insert synthetic scenario fixtures for test suite compatibility
+        db = SessionLocal()
+        print("Inserting test scenario fixtures...")
+        dataset = generate_synthetic_dataset()
+
         for p in dataset["products"]:
-            product = Product(
-                id=p["id"],
-                external_id=p["external_id"],
-                name=p["name"],
-                brand=p["brand"],
-                category=p["category"],
-                subcategory=p["subcategory"],
-                description=p["description"]
-            )
-            db.add(product)
-        db.commit()
-
-        # Insert reviews
-        print(f"Inserting {len(dataset['reviews'])} reviews...")
-        for r in dataset["reviews"]:
-            review = Review(
-                id=r["id"],
-                product_id=r["product_id"],
-                external_id=r["external_id"],
-                rating=r["rating"],
-                title=r["title"],
-                body=r["body"],
-                review_date=r["review_date"],
-                verified=r["verified"],
-                source=r["source"]
-            )
-            db.add(review)
-
-            # Insert explicit signal if flagged in synthetic data
-            if r.get("is_safety"):
-                signal = SafetySignal(
-                    product_id=r["product_id"],
-                    review_id=r["id"],
-                    signal_type=r["signal_type"],
-                    phrase=r["phrase"],
-                    severity=r["severity"],
-                    confidence=0.95,
-                    detected_at=r["review_date"]
+            # Only add synthetic products if not already present
+            existing = db.query(Product).filter(Product.id == p["id"]).first()
+            if not existing:
+                product = Product(
+                    id=p["id"],
+                    external_id=p["external_id"],
+                    name=p["name"],
+                    brand=p["brand"],
+                    category=p["category"],
+                    subcategory=p["subcategory"],
+                    description=p["description"]
                 )
-                db.add(signal)
+                db.add(product)
         db.commit()
 
-        # Insert safety reports
-        print(f"Inserting {len(dataset['safety_reports'])} safety reports...")
+        for r in dataset["reviews"]:
+            existing = db.query(Review).filter(Review.id == r["id"]).first()
+            if not existing:
+                review = Review(
+                    id=r["id"],
+                    product_id=r["product_id"],
+                    external_id=r["external_id"],
+                    rating=r["rating"],
+                    title=r["title"],
+                    body=r["body"],
+                    review_date=r["review_date"],
+                    verified=r["verified"],
+                    source=r["source"]
+                )
+                db.add(review)
+
+                if r.get("is_safety"):
+                    signal = SafetySignal(
+                        product_id=r["product_id"],
+                        review_id=r["id"],
+                        signal_type=r["signal_type"],
+                        phrase=r["phrase"],
+                        severity=r["severity"],
+                        confidence=0.95,
+                        detected_at=r["review_date"]
+                    )
+                    db.add(signal)
+        db.commit()
+
         for rep in dataset["safety_reports"]:
-            report = SafetyReport(
-                id=rep["id"],
-                product_id=rep["product_id"],
-                external_id=rep["external_id"],
-                report_date=rep["report_date"],
-                description=rep["description"],
-                product_name=rep["product_name"],
-                category=rep["category"],
-                severity=rep["severity"],
-                source=rep["source"]
-            )
-            db.add(report)
+            existing = db.query(SafetyReport).filter(SafetyReport.id == rep["id"]).first()
+            if not existing:
+                report = SafetyReport(
+                    id=rep["id"],
+                    product_id=rep["product_id"],
+                    external_id=rep["external_id"],
+                    report_date=rep["report_date"],
+                    description=rep["description"],
+                    product_name=rep["product_name"],
+                    category=rep["category"],
+                    severity=rep["severity"],
+                    source=rep["source"]
+                )
+                db.add(report)
         db.commit()
 
-        # Insert recalls
-        print(f"Inserting {len(dataset['recalls'])} recalls...")
         for rec in dataset["recalls"]:
-            recall = Recall(
-                id=rec["id"],
-                external_id=rec["external_id"],
-                product_id=rec["product_id"],
-                recall_date=rec["recall_date"],
-                announcement_date=rec["announcement_date"],
-                description=rec["description"],
-                hazard=rec["hazard"],
-                remedy=rec["remedy"],
-                category=rec["category"],
-                source=rec["source"]
-            )
-            db.add(recall)
+            existing = db.query(Recall).filter(Recall.id == rec["id"]).first()
+            if not existing:
+                recall = Recall(
+                    id=rec["id"],
+                    external_id=rec["external_id"],
+                    product_id=rec["product_id"],
+                    recall_date=rec["recall_date"],
+                    announcement_date=rec["announcement_date"],
+                    description=rec["description"],
+                    hazard=rec["hazard"],
+                    remedy=rec["remedy"],
+                    category=rec["category"],
+                    source=rec["source"]
+                )
+                db.add(recall)
         db.commit()
 
-        print("Database seed completed successfully!")
+        total_p = db.query(Product).count()
+        total_r = db.query(Review).count()
+        total_s = db.query(SafetySignal).count()
+        print(f"\n=== Database Seeding Complete ===")
+        print(f"Total Products: {total_p}")
+        print(f"Total Reviews: {total_r}")
+        print(f"Total Safety Signals: {total_s}")
 
     except Exception as e:
         db.rollback()
-        print(f"Error seeding database: {e}")
-        raise e
+        print(f"Error during seeding: {e}")
+        raise
     finally:
         db.close()
 

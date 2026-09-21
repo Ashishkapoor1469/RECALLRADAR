@@ -30,8 +30,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   }
 
   const prod = data?.product || {};
-  const riskScore = data?.current_risk ?? 82.0;
-  const leadTime = data?.lead_time_weeks ?? 7.4;
+  const riskScore = data?.current_risk ?? 0.0;
+  const leadTime = data?.lead_time_weeks;
   const recallInfo = data?.recall;
   const reviews = data?.reviews || [];
 

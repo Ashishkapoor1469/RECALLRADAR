@@ -227,3 +227,16 @@ class Message(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     conversation = relationship("Conversation", back_populates="messages")
+
+
+class ReviewSignal(Base):
+    __tablename__ = "review_signals"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    review_id = Column(String, ForeignKey("reviews.id", ondelete="CASCADE"), nullable=False, index=True)
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    category = Column(String, nullable=False, index=True) # e.g. "cable noise", "crackling/electrical", "component detachment", "breakage/durability", "sound quality"
+    sentiment = Column(String, default="negative", index=True)
+    keyword = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+

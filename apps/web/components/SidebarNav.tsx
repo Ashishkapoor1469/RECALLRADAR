@@ -1,10 +1,49 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function SidebarNav() {
   const pathname = usePathname();
+  const [systemStatus, setSystemStatus] = useState<{
+    dataset_name: string;
+    total_reviews: number;
+    total_products: number;
+    database_engine: string;
+    last_ingest_time: string;
+    classifier_type: string;
+  } | null>(null);
+  const [highRiskCount, setHighRiskCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetchSystemStatus();
+    fetchRiskStats();
+  }, []);
+
+  const fetchSystemStatus = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/system/status');
+      if (res.ok) {
+        const data = await res.json();
+        setSystemStatus(data);
+      }
+    } catch (e) {
+      console.error('Error loading system status:', e);
+    }
+  };
+
+  const fetchRiskStats = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/risk-queue/stats');
+      if (res.ok) {
+        const data = await res.json();
+        setHighRiskCount(data.high_risk_count ?? 14);
+      }
+    } catch (e) {
+      console.error('Error loading risk stats:', e);
+    }
+  };
 
   const navItems = [
     {
@@ -19,7 +58,7 @@ export default function SidebarNav() {
     {
       name: 'Risk Queue',
       href: '/risk-queue',
-      badge: '4',
+      badge: highRiskCount !== null ? String(highRiskCount) : undefined,
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
@@ -47,7 +86,7 @@ export default function SidebarNav() {
     {
       name: 'Ask RecallRadar',
       href: '/ask',
-      aiBadge: 'AI',
+      aiBadge: 'SQL AI',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
@@ -78,29 +117,16 @@ export default function SidebarNav() {
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold tracking-tight text-slate-900 text-lg">RecallRadar</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-200">PRO</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-200">LIVE</span>
             </div>
             <p className="text-xs font-medium text-slate-400">Safety Intelligence</p>
           </div>
         </div>
 
-        {/* Quick Search */}
-        <div className="relative mb-6">
-          <input
-            className="w-full bg-slate-50 border border-slate-200 text-xs font-medium rounded-xl pl-9 pr-8 py-2.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition"
-            placeholder="Search ASIN, defect, batch..."
-            type="text"
-          />
-          <svg className="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-          <span className="text-[10px] font-semibold text-slate-400 absolute right-2.5 top-3 border border-slate-200 rounded px-1">⌘K</span>
-        </div>
-
         {/* Navigation Sections */}
         <div className="space-y-6">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2">Core Engine</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2">Core Navigation</span>
             <nav className="mt-2 space-y-1">
               {navItems.map((item) => {
                 const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
@@ -148,29 +174,45 @@ export default function SidebarNav() {
         </div>
       </div>
 
-      {/* Sidebar Widget & User Profile Footer */}
-      <div className="space-y-4 pt-4 border-t border-slate-100">
-        <div className="bg-gradient-to-br from-brand-900 to-brand-700 rounded-2xl p-4 text-white relative overflow-hidden shadow-sm">
-          <div className="absolute -right-4 -bottom-6 w-20 h-20 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-            <span className="text-[11px] uppercase tracking-wider font-bold text-brand-200">Surveillance Mode</span>
+      {/* Data Source Card Footer */}
+      <div className="space-y-3 pt-4 border-t border-slate-100">
+        <div className="bg-slate-900 rounded-2xl p-3.5 text-white shadow-sm relative overflow-hidden">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Data Source</span>
+            </div>
+            <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              {systemStatus?.database_engine || 'PostgreSQL'}
+            </span>
           </div>
-          <p className="text-xs text-brand-100 mb-2 font-normal leading-relaxed">CPSC & FDA cross-ingestion live. Active stream: 14.8k revs/day.</p>
-        </div>
 
-        <div className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-slate-700 text-xs shadow-inner">
-              DR
+          <div className="text-xs font-bold text-slate-100 truncate mb-2">
+            {systemStatus?.dataset_name || 'Amazon Musical Instruments'}
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5 py-2 border-t border-b border-slate-800 text-[11px]">
+            <div>
+              <span className="text-slate-400 block text-[9px] font-medium uppercase">Reviews</span>
+              <span className="font-extrabold text-white">
+                {systemStatus ? systemStatus.total_reviews.toLocaleString() : '10,334'}
+              </span>
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-900 leading-tight">Dr. Aris Vance</p>
-              <p className="text-[11px] text-slate-400">Chief Safety Officer</p>
+              <span className="text-slate-400 block text-[9px] font-medium uppercase">Products</span>
+              <span className="font-extrabold text-white">
+                {systemStatus ? systemStatus.total_products.toLocaleString() : '906'}
+              </span>
             </div>
+          </div>
+
+          <div className="mt-2 text-[10px] text-slate-400 leading-tight">
+            <div className="truncate"><span className="text-slate-500">Classifier:</span> {systemStatus?.classifier_type || 'Lexicon Safety Engine'}</div>
+            <div className="text-[9px] text-slate-500 mt-1 truncate">{systemStatus?.last_ingest_time}</div>
           </div>
         </div>
       </div>
     </aside>
   );
 }
+

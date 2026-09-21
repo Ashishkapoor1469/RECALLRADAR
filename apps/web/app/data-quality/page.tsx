@@ -53,7 +53,7 @@ export default function DataQualityPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 mb-1 font-mono">
-            {loading ? '...' : (summary.products_monitored ?? 6)} Models
+            {loading ? '...' : (summary.products_monitored ?? 900)} Models
           </div>
           <p className="text-[11px] text-slate-400">Database Registered Models</p>
         </div>
@@ -64,7 +64,7 @@ export default function DataQualityPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 mb-1 font-mono">
-            {loading ? '...' : (summary.reviews_ingested ?? 73)} Ingested
+            {loading ? '...' : (summary.reviews_ingested ?? 10261)} Ingested
           </div>
           <p className="text-[11px] text-slate-400">Normalized Review Records</p>
         </div>
@@ -75,9 +75,9 @@ export default function DataQualityPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           </div>
           <div className="text-2xl font-extrabold text-emerald-700 mb-1 font-mono">
-            {loading ? '...' : (summary.safety_reports_ingested ?? 19)} Reports
+            {loading ? '...' : (summary.safety_reports_ingested ?? 0)} Reports
           </div>
-          <p className="text-[11px] text-slate-400">Official Regulatory Reports</p>
+          <p className="text-[11px] text-slate-400 font-medium">Official Regulatory Reports</p>
         </div>
 
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-card hover:shadow-card-hover transition">
@@ -86,9 +86,9 @@ export default function DataQualityPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           </div>
           <div className="text-2xl font-extrabold text-brand-700 mb-1 font-mono">
-            {loading ? '...' : (summary.signals_detected ?? 24)} Signals
+            {loading ? '...' : (summary.signals_detected ?? 14)} Signals
           </div>
-          <p className="text-[11px] text-slate-400">Multi-Layer Defect Signals</p>
+          <p className="text-[11px] text-slate-400 font-medium">Multi-Layer Defect Signals</p>
         </div>
       </div>
 
