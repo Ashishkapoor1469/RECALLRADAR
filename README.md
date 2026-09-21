@@ -20,6 +20,13 @@ RecallRadar monitors customer reviews and public safety reports, detects emergin
 
 ---
 
+## Documentation & Specifications
+
+- **[Software Requirements Specification (SRS)](file:///c:/Users/hp/Desktop/RecallRadar/docs/SRS.md)**: Formal functional and non-functional requirements specification matrix.
+- **[System Architecture & Technical Docs](file:///c:/Users/hp/Desktop/RecallRadar/docs/ARCHITECTURE_AND_DOCS.md)**: Detailed monorepo architecture, 5-layer safety detection math, NVIDIA NIM integration, and RAG pipeline documentation.
+
+---
+
 ## Technical Architecture
 
 ```
