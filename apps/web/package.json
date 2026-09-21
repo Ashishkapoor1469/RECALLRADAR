@@ -9,7 +9,6 @@
     "test": "echo 'Frontend tests OK'"
   },
   "dependencies": {
-    "@next/swc-win32-x64-msvc": "^16.3.5",
     "@tanstack/react-virtual": "^3.14.13",
     "clsx": "^2.1.1",
     "framer-motion": "^13.4.0",
