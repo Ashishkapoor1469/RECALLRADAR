@@ -49,6 +49,7 @@ class Review(Base):
 
     product = relationship("Product", back_populates="reviews")
     safety_signals = relationship("SafetySignal", back_populates="review")
+    review_signals = relationship("ReviewSignal", back_populates="review", cascade="all, delete-orphan")
 
 
 class SafetyReport(Base):
@@ -239,4 +240,6 @@ class ReviewSignal(Base):
     sentiment = Column(String, default="negative", index=True)
     keyword = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    review = relationship("Review", back_populates="review_signals")
 

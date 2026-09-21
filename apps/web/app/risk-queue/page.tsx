@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import { getApiUrl } from '../../lib/api';
+
 interface QueueItem {
   id: string;
   name: string;
@@ -45,7 +47,7 @@ function RiskQueueContent() {
   ) => {
     setLoading(true);
     try {
-      let url = `http://localhost:8000/api/v1/risk-queue/?page=${pageNum}&page_size=10&sort_by=${sortVal}&min_risk=${riskVal}`;
+      let url = getApiUrl(`/api/v1/risk-queue/?page=${pageNum}&page_size=10&sort_by=${sortVal}&min_risk=${riskVal}`);
       if (catVal) url += `&category=${encodeURIComponent(catVal)}`;
       const res = await fetch(url);
       if (res.ok) {

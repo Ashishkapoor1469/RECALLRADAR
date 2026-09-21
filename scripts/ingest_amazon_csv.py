@@ -96,6 +96,7 @@ def ingest_csv(csv_path: str, limit: int = None):
                     source="amazon"
                 )
                 db.add(review)
+                db.flush()
                 total_reviews += 1
 
                 # Safety Signal Detection

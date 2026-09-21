@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { API_BASE_URL, getApiUrl } from '../lib/api';
 
 interface SidebarNavProps {
   isOpenMobile?: boolean;
@@ -28,7 +28,7 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
 
   const fetchSystemStatus = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/system/status');
+      const res = await fetch(getApiUrl('/api/v1/system/status'));
       if (res.ok) {
         const data = await res.json();
         setSystemStatus(data);
@@ -40,7 +40,7 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
 
   const fetchRiskStats = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/risk-queue/stats');
+      const res = await fetch(getApiUrl('/api/v1/risk-queue/stats'));
       if (res.ok) {
         const data = await res.json();
         setHighRiskCount(data.high_risk_count ?? 14);
