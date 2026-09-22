@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { API_BASE_URL, getApiUrl } from '../lib/api';
 
 interface SidebarNavProps {
