@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getApiUrl } from '../../lib/api';
 
 export default function AlertsPage() {
   const [ruleInput, setRuleInput] = useState('');
@@ -17,8 +18,8 @@ export default function AlertsPage() {
     setLoading(true);
     try {
       const [alertsRes, rulesRes] = await Promise.all([
-        fetch('http://localhost:8000/api/v1/alerts/').then(r => r.json()).catch(() => []),
-        fetch('http://localhost:8000/api/v1/alerts/rules').then(r => r.json()).catch(() => [])
+        fetch(getApiUrl('/api/v1/alerts/')).then(r => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/v1/alerts/rules')).then(r => r.json()).catch(() => [])
       ]);
       setAlerts(Array.isArray(alertsRes) ? alertsRes : []);
       setRules(Array.isArray(rulesRes) ? rulesRes : []);
@@ -35,7 +36,7 @@ export default function AlertsPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/alerts/rules', {
+      const res = await fetch(getApiUrl('/api/v1/alerts/rules'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: ruleInput.trim() }),

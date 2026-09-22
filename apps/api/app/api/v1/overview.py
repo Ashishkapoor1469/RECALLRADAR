@@ -139,7 +139,11 @@ def get_sentiment_telemetry(
             }
 
         # Monthly aggregation across actual date range using CASE
-        month_expr = func.strftime('%Y-%m', Review.review_date)
+        if db.bind and db.bind.dialect.name == 'postgresql':
+            month_expr = func.to_char(Review.review_date, 'YYYY-MM')
+        else:
+            month_expr = func.strftime('%Y-%m', Review.review_date)
+
         monthly_stats = db.query(
             month_expr.label("period"),
             func.count(Review.id).label("total_revs"),

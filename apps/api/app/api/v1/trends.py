@@ -14,14 +14,21 @@ def get_defect_trends(
     db: Session = Depends(get_db)
 ):
     """Returns dynamic yearly defect velocity timeline from real database records."""
-    # Query signals by year from database
+    # Query signals by year from database with dialect check
+    if db.bind and db.bind.dialect.name == 'postgresql':
+        sig_year_expr = func.to_char(SafetySignal.detected_at, 'YYYY')
+        rev_year_expr = func.to_char(Review.review_date, 'YYYY')
+    else:
+        sig_year_expr = func.strftime("%Y", SafetySignal.detected_at)
+        rev_year_expr = func.strftime("%Y", Review.review_date)
+
     signal_rows = db.query(
-        func.strftime("%Y", SafetySignal.detected_at).label("year"),
+        sig_year_expr.label("year"),
         func.count(SafetySignal.id).label("cnt")
     ).group_by("year").order_by("year").all()
 
     review_rows = db.query(
-        func.strftime("%Y", Review.review_date).label("year"),
+        rev_year_expr.label("year"),
         func.count(Review.id).label("cnt")
     ).group_by("year").order_by("year").all()
 

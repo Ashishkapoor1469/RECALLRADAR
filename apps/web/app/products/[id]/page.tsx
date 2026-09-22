@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getApiUrl } from '../../../lib/api';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const [data, setData] = useState<any>(null);
@@ -14,7 +15,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const fetchProductDetails = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/products/${params.id}`);
+      const res = await fetch(getApiUrl(`/api/v1/products/${params.id}`));
       const result = await res.json();
       setData(result);
     } catch (err) {

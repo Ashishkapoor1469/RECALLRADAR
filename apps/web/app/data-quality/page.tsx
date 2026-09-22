@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getApiUrl } from '../../lib/api';
 
 export default function DataQualityPage() {
   const [data, setData] = useState<any>(null);
@@ -13,7 +14,7 @@ export default function DataQualityPage() {
   const fetchDataQualityMetrics = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/data-quality/');
+      const res = await fetch(getApiUrl('/api/v1/data-quality/'));
       const result = await res.json();
       setData(result);
     } catch (e) {

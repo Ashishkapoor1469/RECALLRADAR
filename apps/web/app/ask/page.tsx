@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
+import { getApiUrl } from '../../lib/api';
 
 interface ChatMessage {
   sender: 'user' | 'assistant';
@@ -34,7 +35,7 @@ export default function AskRecallRadarPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/chat/', {
+      const res = await fetch(getApiUrl('/api/v1/chat/'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userMsg }),

@@ -43,9 +43,11 @@ def run_verifications():
     res = client.get("/api/v1/products/attention?limit=5")
     assert res.status_code == 200
     att_data = res.json()
-    assert len(att_data) > 0, "Products needing attention should be non-empty"
-    assert "attention_score" in att_data[0]
-    print(f"[PASS] GET /api/v1/products/attention -> Flagged top item: {att_data[0]['name']}")
+    items = att_data.get("items", att_data) if isinstance(att_data, dict) else att_data
+    assert len(items) > 0, "Products needing attention should be non-empty"
+    first_item = items[0]
+    assert ("attention_score" in first_item or "composite_score" in first_item), "Attention/composite score required"
+    print(f"[PASS] GET /api/v1/products/attention -> Flagged top item: {first_item['name']}")
 
     # 5. Risk Queue Server-side Pagination
     res = client.get("/api/v1/risk-queue/?page=1&page_size=10")

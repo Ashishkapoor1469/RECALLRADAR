@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
+import { getApiUrl } from '../../lib/api';
 
 interface BacktestMetrics {
   precision: number;
@@ -44,7 +45,7 @@ export default function BacktestLabPage() {
   const fetchBacktestSummary = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/backtests/summary');
+      const res = await fetch(getApiUrl('/api/v1/backtests/summary'));
       if (res.ok) {
         const data = await res.json();
         setSummaryData(data);
@@ -59,7 +60,7 @@ export default function BacktestLabPage() {
   const handleSimulate = async () => {
     setSimulating(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/backtests/simulate?alert_budget=${alertBudget}&horizon_weeks=${leadTimeHorizon}`);
+      const res = await fetch(getApiUrl(`/api/v1/backtests/simulate?alert_budget=${alertBudget}&horizon_weeks=${leadTimeHorizon}`));
       if (res.ok) {
         const data = await res.json();
         setSummaryData(data);

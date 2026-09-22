@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getApiUrl } from '../lib/api';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -89,7 +90,7 @@ function OverviewPageContent() {
   const fetchSummary = async () => {
     setLoadingSummary(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/overview/summary');
+      const res = await fetch(getApiUrl('/api/v1/overview/summary'));
       if (res.ok) {
         const data = await res.json();
         setSummary(data);
@@ -104,7 +105,7 @@ function OverviewPageContent() {
   const fetchSentiment = async (mode: 'positive' | 'negative') => {
     setLoadingSentiment(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/overview/sentiment-performance?mode=${mode}`);
+      const res = await fetch(getApiUrl(`/api/v1/overview/sentiment-performance?mode=${mode}`));
       if (res.ok) {
         const data = await res.json();
         setSentimentData(data);
@@ -119,7 +120,7 @@ function OverviewPageContent() {
   const fetchAttention = async () => {
     setLoadingAttention(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/products/attention');
+      const res = await fetch(getApiUrl('/api/v1/products/attention'));
       if (res.ok) {
         const data = await res.json();
         setAttentionProducts(data.items || []);
@@ -134,7 +135,7 @@ function OverviewPageContent() {
   const fetchQueue = async (pageNum: number) => {
     setLoadingQueue(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/risk-queue/?page=${pageNum}&page_size=10`);
+      const res = await fetch(getApiUrl(`/api/v1/risk-queue/?page=${pageNum}&page_size=10`));
       if (res.ok) {
         const data = await res.json();
         setQueueItems(data.items || []);
