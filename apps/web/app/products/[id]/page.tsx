@@ -44,9 +44,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       </Link>
 
       {/* Product Banner Card */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-6 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
               riskScore >= 70 ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-slate-100 text-slate-700 border border-slate-200'
             }`}>
@@ -54,7 +54,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </span>
             <span className="text-[11px] text-slate-400 font-mono">ID: {prod.id || params.id}</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{prod.name || 'Product Details'}</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight break-words">{prod.name || 'Product Details'}</h1>
           <p className="text-xs text-slate-500 mt-1 font-semibold">
             Brand: <span className="text-slate-700 font-bold">{prod.brand || 'N/A'}</span> • Category: <span className="text-slate-700 font-bold">{prod.category || 'N/A'}</span>
           </p>
@@ -63,16 +63,16 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           )}
         </div>
 
-        <div className="flex items-center gap-6 shrink-0">
-          <div className="text-right">
+        <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 shrink-0 border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-6">
+          <div>
             <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Hazard Score</span>
-            <span className={`text-3xl font-black ${riskScore >= 70 ? 'text-rose-600' : 'text-slate-700'}`}>
+            <span className={`text-2xl sm:text-3xl font-black ${riskScore >= 70 ? 'text-rose-600' : 'text-slate-700'}`}>
               {riskScore} <span className="text-xs font-normal text-slate-400">/ 100</span>
             </span>
           </div>
-          <div className="text-right border-l border-slate-100 pl-6">
+          <div className="border-l border-slate-100 pl-4 sm:pl-6">
             <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Early Lead Window</span>
-            <span className="text-3xl font-black text-emerald-700">{leadTime} <span className="text-xs font-normal text-slate-500">wks</span></span>
+            <span className="text-2xl sm:text-3xl font-black text-emerald-700">{leadTime} <span className="text-xs font-normal text-slate-500">wks</span></span>
           </div>
         </div>
       </div>

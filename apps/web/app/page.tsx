@@ -159,22 +159,22 @@ function OverviewPageContent() {
   return (
     <div className="space-y-8">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
-            Safety Intelligence Overview
-            <span className="text-xs font-semibold text-brand-700 bg-brand-50 border border-brand-200/80 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex flex-wrap items-center gap-2 md:gap-3">
+            <span>Safety Intelligence Overview</span>
+            <span className="text-xs font-semibold text-brand-700 bg-brand-50 border border-brand-200/80 px-2.5 py-0.5 rounded-full flex items-center gap-1.5 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               PostgreSQL Telemetry
             </span>
           </h1>
-          <p className="text-xs md:text-sm text-slate-500 mt-1 font-normal max-w-2xl">
+          <p className="text-xs md:text-sm text-slate-500 mt-1 font-normal max-w-2xl leading-relaxed">
             Continuous AI defect surveillance across verified consumer reports, safety signal telemetry, and product hazard indicators.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs text-slate-400 font-medium font-mono">Database Status:</span>
-          <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+          <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
             Real Ingestion Active
           </span>
         </div>
@@ -298,9 +298,9 @@ function OverviewPageContent() {
       {/* Main Grid: Sentiment & Attention Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column (8 Cols): Interactive Animated Sentiment Performance Chart */}
-        <div className="lg:col-span-8 space-y-8">
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-card">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="lg:col-span-8 space-y-8 min-w-0">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-6 shadow-card min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div>
                 <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                   Sentiment Performance &amp; Signal Telemetry
@@ -311,10 +311,10 @@ function OverviewPageContent() {
               </div>
 
               {/* Framer-motion Sentiment Toggle */}
-              <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+              <div className="flex items-center bg-slate-100 p-1 rounded-xl w-full sm:w-auto justify-stretch sm:justify-start">
                 <button
                   onClick={() => setSentimentMode('negative')}
-                  className={`relative px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`relative flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition text-center ${
                     sentimentMode === 'negative' ? 'text-rose-700' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -325,15 +325,16 @@ function OverviewPageContent() {
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <span className="relative z-10 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                    Negative Defect Signals
+                  <span className="relative z-10 flex items-center justify-center gap-1 whitespace-nowrap">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+                    <span className="hidden sm:inline">Negative Defect Signals</span>
+                    <span className="sm:hidden">Negative Signals</span>
                   </span>
                 </button>
 
                 <button
                   onClick={() => setSentimentMode('positive')}
-                  className={`relative px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`relative flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition text-center ${
                     sentimentMode === 'positive' ? 'text-emerald-700' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -344,9 +345,10 @@ function OverviewPageContent() {
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <span className="relative z-10 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    Positive Sentiment
+                  <span className="relative z-10 flex items-center justify-center gap-1 whitespace-nowrap">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span className="hidden sm:inline">Positive Sentiment</span>
+                    <span className="sm:hidden">Positive</span>
                   </span>
                 </button>
               </div>
@@ -361,21 +363,21 @@ function OverviewPageContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
                   transition={{ duration: 0.2 }}
-                  className="flex items-center justify-between mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100"
+                  className="grid grid-cols-2 sm:flex sm:items-center justify-between gap-3 mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs"
                 >
                   <div>
-                    <span className="text-slate-500 text-xs font-medium">Average Metric:</span>
-                    <span className="ml-2 font-extrabold text-slate-900 text-sm">
+                    <span className="text-slate-500 text-xs font-medium block sm:inline">Average Metric:</span>
+                    <span className="sm:ml-2 font-extrabold text-slate-900 text-sm">
                       {sentimentData?.average_score ? (sentimentData.average_score * 100).toFixed(1) + '%' : '0.0%'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 text-xs font-medium">Total Reviews Cohort:</span>
-                    <span className="ml-2 font-extrabold text-slate-900 text-sm">
+                    <span className="text-slate-500 text-xs font-medium block sm:inline">Total Reviews:</span>
+                    <span className="sm:ml-2 font-extrabold text-slate-900 text-sm">
                       {sentimentData?.total_count ? sentimentData.total_count.toLocaleString() : '0'}
                     </span>
                   </div>
-                  <div>
+                  <div className="col-span-2 sm:col-span-1 flex items-center">
                     <span className="text-slate-500 text-xs font-medium">Mode Active:</span>
                     <span className={`ml-2 text-xs font-bold uppercase px-2 py-0.5 rounded ${
                       sentimentMode === 'negative' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
@@ -387,7 +389,7 @@ function OverviewPageContent() {
               </AnimatePresence>
 
               {/* Recharts Area Chart */}
-              <div className="h-64 w-full">
+              <div className="h-56 sm:h-64 w-full">
                 {loadingSentiment ? (
                   <div className="h-full flex items-center justify-center text-xs text-slate-400">Loading chart telemetry...</div>
                 ) : (
@@ -437,10 +439,10 @@ function OverviewPageContent() {
 
           {/* Paginated Products Table (10 per page) */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-card overflow-hidden">
-            <div className="p-5 pb-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 sm:p-5 pb-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  Live Product Risk Directory
+                <h2 className="text-base font-bold text-slate-900 flex flex-wrap items-center gap-2">
+                  <span>Live Product Risk Directory</span>
                   <span className="text-xs font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">
                     {totalQueueItems} Total
                   </span>
@@ -451,7 +453,7 @@ function OverviewPageContent() {
               </div>
 
               {/* Server-Side Pagination Controls */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                 <span className="text-xs text-slate-500 font-medium">
                   Page <strong className="text-slate-900">{page}</strong> of <strong className="text-slate-900">{totalPages}</strong>
                 </span>
@@ -545,7 +547,7 @@ function OverviewPageContent() {
             </div>
 
             {/* Bottom Pagination Bar */}
-            <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
+            <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
               <div>
                 Showing <strong>{((page - 1) * 10) + 1}</strong>–<strong>{Math.min(page * 10, totalQueueItems)}</strong> of <strong>{totalQueueItems}</strong> products
               </div>

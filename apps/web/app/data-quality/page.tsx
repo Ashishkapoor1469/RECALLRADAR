@@ -32,15 +32,15 @@ export default function DataQualityPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Data Feed Ingestion Health & Telemetry Status</h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Data Feed Ingestion Health &amp; Telemetry Status</h1>
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
               Database Sync Active
             </span>
           </div>
-          <p className="text-slate-500 text-xs mt-1">
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed">
             Real-time feed monitoring across marketplace reviews, CPSC regulatory databases, and internal return telemetry.
           </p>
         </div>

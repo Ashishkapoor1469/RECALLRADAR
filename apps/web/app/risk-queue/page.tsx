@@ -74,28 +74,28 @@ function RiskQueueContent() {
   return (
     <div className="space-y-6">
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
               Live Risk Queue &amp; Citation Diagnostics
             </h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200">
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 whitespace-nowrap">
               {totalItems} Products In DB Queue
             </span>
           </div>
-          <p className="text-slate-500 text-xs mt-1 font-medium">
+          <p className="text-slate-500 text-xs mt-1 font-medium leading-relaxed">
             Ranked by Bayesian harm probability, linguistic clustering severity, and review signal velocity.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold">
+        <div className="flex items-center gap-2 text-xs font-semibold shrink-0">
           <span className="text-slate-500">Page {page} of {totalPages}</span>
         </div>
       </div>
 
       {/* Filter Controls Bar */}
-      <div className="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-card flex flex-wrap items-center gap-5 text-xs font-semibold text-slate-700">
+      <div className="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-card grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-slate-700">
         <div>
           <label className="text-slate-500 block mb-1 text-[11px] font-bold uppercase tracking-wider">
             Minimum Risk Score
@@ -109,7 +109,7 @@ function RiskQueueContent() {
               setMinRisk(Number(e.target.value));
               setPage(1);
             }}
-            className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-slate-900 font-bold w-28 focus:ring-2 focus:ring-brand-500/20"
+            className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-slate-900 font-bold w-full focus:ring-2 focus:ring-brand-500/20"
           />
         </div>
 
@@ -123,7 +123,7 @@ function RiskQueueContent() {
               setCategory(e.target.value);
               setPage(1);
             }}
-            className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-slate-900 font-bold focus:ring-2 focus:ring-brand-500/20"
+            className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-slate-900 font-bold w-full focus:ring-2 focus:ring-brand-500/20"
           >
             <option value="">All Categories</option>
             <option value="Musical Instruments">Musical Instruments</option>
@@ -142,7 +142,7 @@ function RiskQueueContent() {
               setSortBy(e.target.value);
               setPage(1);
             }}
-            className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-slate-900 font-bold focus:ring-2 focus:ring-brand-500/20"
+            className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-slate-900 font-bold w-full focus:ring-2 focus:ring-brand-500/20"
           >
             <option value="highest_risk">Highest Hazard Index</option>
             <option value="most_signals">Most Safety Signals</option>
@@ -152,7 +152,7 @@ function RiskQueueContent() {
       </div>
 
       {/* Pagination Header Bar */}
-      <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200/80 text-xs font-semibold text-slate-600">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200/80 text-xs font-semibold text-slate-600">
         <div>
           Showing <strong>{items.length === 0 ? 0 : (page - 1) * 10 + 1}</strong>–<strong>{Math.min(page * 10, totalItems)}</strong> of <strong>{totalItems}</strong> matching products
         </div>

@@ -92,15 +92,15 @@ export default function AskRecallRadarPage() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Ask RecallRadar AI</h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full text-emerald-800 bg-emerald-100 border border-emerald-200">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Ask RecallRadar AI</h1>
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full text-emerald-800 bg-emerald-100 border border-emerald-200 whitespace-nowrap">
               NVIDIA NIM SQL Tool Agent
             </span>
           </div>
-          <p className="text-slate-500 text-xs mt-1">
+          <p className="text-slate-500 text-xs mt-1 leading-relaxed">
             Grounded SQL function calling over PostgreSQL DB. Every insight cites database review evidence and exportable table queries.
           </p>
         </div>
@@ -109,13 +109,13 @@ export default function AskRecallRadarPage() {
         <div className="flex flex-wrap gap-2 text-xs font-medium">
           <button
             onClick={() => handleSend('Show products with top risk defects in a table')}
-            className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition"
+            className="px-2.5 sm:px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition"
           >
-            📊 Top Risk Products Table
+            📊 Top Risk Products
           </button>
           <button
             onClick={() => handleSend('Show table of cable noise reports')}
-            className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition"
+            className="px-2.5 sm:px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition"
           >
             🔌 Cable Noise Reports
           </button>
