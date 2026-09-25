@@ -61,6 +61,12 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           {prod.description && (
             <p className="text-xs text-slate-600 mt-2 max-w-xl leading-relaxed">{prod.description}</p>
           )}
+
+          {/* Signal Cluster Callout Tag */}
+          <div className="mt-3.5 inline-flex items-center gap-2 bg-rose-50/80 border border-rose-200/80 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-900">
+            <span className="text-rose-600">⚠ Signal Cluster:</span>
+            <span className="font-extrabold text-rose-700">{data?.signal_cluster || 'No active defect signals'}</span>
+          </div>
         </div>
 
         <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-6 shrink-0 border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-6">
@@ -72,7 +78,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           </div>
           <div className="border-l border-slate-100 pl-4 sm:pl-6">
             <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Early Lead Window</span>
-            <span className="text-2xl sm:text-3xl font-black text-emerald-700">{leadTime} <span className="text-xs font-normal text-slate-500">wks</span></span>
+            <span className="text-2xl sm:text-3xl font-black text-emerald-700">{leadTime || 'N/A'} <span className="text-xs font-normal text-slate-500">wks</span></span>
           </div>
         </div>
       </div>
@@ -94,7 +100,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <h2 className="text-base font-bold text-slate-900">Verified Customer Evidence Citations ({reviews.length})</h2>
           <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-            Database Ingested Evidence
+            Matched Signal Evidence
           </span>
         </div>
 
@@ -104,12 +110,17 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           <div className="space-y-3">
             {reviews.map((c: any, i: number) => (
               <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200/60 font-mono">
                       {c.id}
                     </span>
                     <span className="text-amber-500 font-bold">{c.rating} ★</span>
+                    {c.matched_signal && (
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200 uppercase">
+                        Matched Signal: "{c.matched_signal}"
+                      </span>
+                    )}
                   </div>
                   <span className="text-slate-400 font-medium">{c.date}</span>
                 </div>

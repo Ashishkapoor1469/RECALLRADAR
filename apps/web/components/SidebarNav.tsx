@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { API_BASE_URL, getApiUrl } from '../lib/api';
 
+import { motion, AnimatePresence } from 'framer-motion';
+
 interface SidebarNavProps {
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
@@ -156,13 +158,21 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
                     key={item.href}
                     href={item.href}
                     onClick={() => onCloseMobile?.()}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
+                    className={`relative flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition group ${
                       isActive
-                        ? 'bg-brand-700 text-white shadow-sm shadow-brand-700/20'
+                        ? 'text-white'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    {isActive && (
+                      <motion.div
+                        layoutId="active-sidebar-pill"
+                        className="absolute inset-0 bg-brand-700 rounded-xl shadow-sm shadow-brand-700/20 z-0"
+                        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                      />
+                    )}
+
+                    <div className="relative z-10 flex items-center gap-3">
                       <span className={isActive ? 'text-brand-200' : 'text-slate-400 group-hover:text-brand-600 transition'}>
                         {item.icon}
                       </span>
@@ -170,7 +180,7 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
                     </div>
 
                     {item.badge && (
-                      <span className={`inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-full ${
+                      <span className={`relative z-10 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-full ${
                         isActive
                           ? 'bg-rose-500 text-white'
                           : 'bg-rose-50 text-rose-600 border border-rose-200'
@@ -180,7 +190,7 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
                     )}
 
                     {item.aiBadge && (
-                      <span className={`text-[9px] font-bold tracking-tight px-1.5 py-0.5 rounded-full ${
+                      <span className={`relative z-10 text-[9px] font-bold tracking-tight px-1.5 py-0.5 rounded-full ${
                         isActive
                           ? 'bg-white text-brand-900'
                           : 'text-emerald-800 bg-emerald-100'
@@ -239,25 +249,36 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
 
   return (
     <>
-      {/* Desktop Sticky Sidebar */}
-      <aside className="hidden md:flex w-64 flex-shrink-0 bg-white border-r border-slate-200/80 sticky top-0 h-screen overflow-y-auto">
+      {/* Desktop Fixed Sidebar */}
+      <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 z-30 bg-white border-r border-slate-200/80 overflow-y-auto">
         {sidebarContent}
       </aside>
 
       {/* Mobile Slide-out Drawer Overlay */}
-      {isOpenMobile && (
-        <div className="fixed inset-0 z-50 md:hidden flex">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
-            onClick={onCloseMobile}
-          />
-          {/* Drawer Content */}
-          <div className="relative w-72 max-w-[80vw] bg-white h-full shadow-2xl z-10 overflow-y-auto">
-            {sidebarContent}
+      <AnimatePresence>
+        {isOpenMobile && (
+          <div className="fixed inset-0 z-50 md:hidden flex">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+              onClick={onCloseMobile}
+            />
+            {/* Drawer Content */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="relative w-72 max-w-[80vw] bg-white h-full shadow-2xl z-10 overflow-y-auto"
+            >
+              {sidebarContent}
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </>
   );
 }

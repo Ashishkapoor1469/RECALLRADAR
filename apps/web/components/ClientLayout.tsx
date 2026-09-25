@@ -17,7 +17,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       />
 
       {/* Main View Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto max-w-full">
+      <main className="flex-1 md:pl-64 flex flex-col min-w-0 max-w-full min-h-screen">
         {/* Executive Sticky Header Bar */}
         <header className="bg-white/90 backdrop-blur-md sticky top-0 z-20 border-b border-slate-200/80 px-3 sm:px-4 md:px-8 py-3 flex items-center justify-between gap-2 sm:gap-4 select-none w-full max-w-full">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">

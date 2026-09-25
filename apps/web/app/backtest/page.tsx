@@ -73,7 +73,7 @@ export default function BacktestLabPage() {
   };
 
   const metrics = summaryData?.metrics;
-  const hasData = (summaryData?.total_backtested_recalls || 0) > 0;
+  const hasData = Boolean(summaryData?.has_labeled_recalls && ((summaryData?.total_backtested_recalls || (summaryData?.recalls?.length || 0)) > 0));
 
   return (
     <div className="space-y-8">

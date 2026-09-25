@@ -93,3 +93,44 @@ Evidence items:
             parsed["is_fallback"] = False
             return parsed
         return None
+
+    def query_nim_with_context(
+        self,
+        question: str,
+        evidence_items: List[Dict[str, Any]]
+    ) -> Optional[str]:
+        if not settings.NVIDIA_NIM_API_KEY:
+            return None
+
+        headers = {
+            "Authorization": f"Bearer {settings.NVIDIA_NIM_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        prompt = f"""You are RecallRadar AI Safety Copilot, an early warning product safety intelligence assistant.
+User Question: {question}
+
+Ingested Customer Evidence Items from Database:
+{json.dumps(evidence_items, indent=2)}
+
+Instructions:
+1. Directly and thoroughly answer the user's question based strictly on the supplied customer evidence.
+2. Cite specific evidence IDs (e.g. [R-EXT-101]) whenever referencing customer feedback or defects.
+3. Do NOT invent facts or cite IDs not included in the evidence.
+4. Keep response structured, professional, and clear."""
+
+        payload = {
+            "model": settings.NVIDIA_NIM_MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.2
+        }
+
+        try:
+            url = f"{settings.NVIDIA_NIM_BASE_URL}/chat/completions"
+            resp = httpx.post(url, headers=headers, json=payload, timeout=15.0)
+            if resp.status_code == 200:
+                content = resp.json()["choices"][0]["message"]["content"].strip()
+                return content
+        except Exception as e:
+            print(f"NVIDIA NIM query failed: {e}")
+        return None

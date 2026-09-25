@@ -67,6 +67,7 @@ def ingest_csv(csv_path: str, limit: int = None):
                             description=f"Musical instrument equipment, accessories, and audio gear with ASIN {asin}."
                         )
                         db.add(product)
+                        db.flush()
                         products_map[asin] = p_id
                         total_products += 1
                 

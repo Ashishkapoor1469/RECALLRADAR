@@ -50,6 +50,7 @@ def get_product_detail(product_id: str, db: Session = Depends(get_db)):
     recall = db.query(Recall).filter(Recall.product_id == product_id).first()
     alerts = db.query(Alert).filter(Alert.product_id == product_id).all()
     signals = db.query(SafetySignal).filter(SafetySignal.product_id == product_id).all()
+    review_signals = db.query(ReviewSignal).filter(ReviewSignal.product_id == product_id).all()
     
     # Calculate current risk consistently with Risk Queue
     snapshots = db.query(ProductRiskSnapshot).filter(ProductRiskSnapshot.product_id == product_id).order_by(ProductRiskSnapshot.snapshot_date.desc()).all()
@@ -60,6 +61,72 @@ def get_product_detail(product_id: str, db: Session = Depends(get_db)):
         max_sev = max([s.severity for s in signals], default=0)
         current_risk = min(sig_count * 14.5 + max_sev * 10, 92.0) if sig_count > 0 else 12.0
 
+    # Extract phrases and signal cluster label
+    signal_phrases = list(dict.fromkeys([s.phrase for s in signals if s.phrase]))
+    signal_types = list(dict.fromkeys([s.signal_type for s in signals if s.signal_type]))
+    
+    if signal_phrases:
+        signal_cluster = ", ".join(signal_phrases[:3])
+    elif signal_types:
+        signal_cluster = ", ".join(signal_types[:3])
+    elif review_signals:
+        rev_cats = list(dict.fromkeys([rs.category for rs in review_signals if rs.category]))
+        signal_cluster = ", ".join(rev_cats[:3])
+    else:
+        signal_cluster = "No active defect signals"
+
+    # Query evidence reviews directly tied to signals/defects
+    signal_review_ids = set([s.review_id for s in signals if s.review_id] + [rs.review_id for rs in review_signals if rs.review_id])
+    
+    evidence_reviews = []
+    if signal_review_ids:
+        evidence_reviews = db.query(Review).filter(Review.id.in_(list(signal_review_ids))).order_by(Review.review_date.desc()).limit(5).all()
+
+    retrieved_ids = set([r.id for r in evidence_reviews])
+    if len(evidence_reviews) < 5 and signal_phrases:
+        for phrase in signal_phrases:
+            matching = db.query(Review).filter(Review.product_id == product_id, Review.body.ilike(f"%{phrase}%")).order_by(Review.review_date.desc()).limit(5).all()
+            for m in matching:
+                if m.id not in retrieved_ids and len(evidence_reviews) < 5:
+                    evidence_reviews.append(m)
+                    retrieved_ids.add(m.id)
+
+    if len(evidence_reviews) < 5:
+        neg_reviews = db.query(Review).filter(Review.product_id == product_id, Review.rating <= 3.0).order_by(Review.review_date.desc()).limit(5).all()
+        for nr in neg_reviews:
+            if nr.id not in retrieved_ids and len(evidence_reviews) < 5:
+                evidence_reviews.append(nr)
+                retrieved_ids.add(nr.id)
+
+    if len(evidence_reviews) < 5:
+        recent = db.query(Review).filter(Review.product_id == product_id).order_by(Review.review_date.desc()).limit(5).all()
+        for rc in recent:
+            if rc.id not in retrieved_ids and len(evidence_reviews) < 5:
+                evidence_reviews.append(rc)
+                retrieved_ids.add(rc.id)
+
+    formatted_reviews = []
+    for r in evidence_reviews:
+        matched_phrase = None
+        for s in signals:
+            if s.review_id == r.id or (s.phrase and s.phrase.lower() in r.body.lower()):
+                matched_phrase = s.phrase or s.signal_type
+                break
+        if not matched_phrase:
+            for rs in review_signals:
+                if rs.review_id == r.id:
+                    matched_phrase = rs.keyword or rs.category
+                    break
+
+        formatted_reviews.append({
+            "id": r.external_id or r.id,
+            "date": r.review_date.strftime("%Y-%m-%d"),
+            "rating": r.rating,
+            "text": r.body,
+            "verified": r.verified,
+            "matched_signal": matched_phrase
+        })
+
     # Lead time calculation
     lead_time_weeks = None
     if recall and alerts:
@@ -67,12 +134,12 @@ def get_product_detail(product_id: str, db: Session = Depends(get_db)):
         delta_days = (recall.recall_date - first_alert.triggered_at).days
         lead_time_weeks = round(max(delta_days / 7.0, 0.0), 1)
 
-    reviews = db.query(Review).filter(Review.product_id == product_id).order_by(Review.review_date.desc()).limit(5).all()
-
     return {
         "product": ProductSchema.from_orm(product),
         "current_risk": current_risk,
         "confidence": "High" if current_risk > 70 else "Medium",
+        "signal_cluster": signal_cluster,
+        "signal_phrases": signal_phrases,
         "recall": {
             "is_recalled": recall is not None,
             "recall_date": recall.recall_date.strftime("%Y-%m-%d") if recall else None,
@@ -81,16 +148,7 @@ def get_product_detail(product_id: str, db: Session = Depends(get_db)):
         "lead_time_weeks": lead_time_weeks,
         "alert_count": len(alerts),
         "signal_count": len(signals),
-        "reviews": [
-            {
-                "id": r.external_id or r.id,
-                "date": r.review_date.strftime("%Y-%m-%d"),
-                "rating": r.rating,
-                "text": r.body,
-                "verified": r.verified
-            }
-            for r in reviews
-        ]
+        "reviews": formatted_reviews
     }
 
 @router.get("/{product_id}/timeline")
