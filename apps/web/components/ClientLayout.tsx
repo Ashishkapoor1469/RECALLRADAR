@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import DemoControls from './DemoControls';
 import SidebarNav from './SidebarNav';
 
@@ -10,11 +10,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     setIsNavigating(false);
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   useEffect(() => {
     const handleLinkClick = (e: MouseEvent) => {
