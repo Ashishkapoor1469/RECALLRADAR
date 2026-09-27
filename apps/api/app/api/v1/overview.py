@@ -16,26 +16,43 @@ def get_shared_product_risk_list(db: Session):
     """
     products = db.query(Product).all()
     all_signals = db.query(SafetySignal).all()
-    all_reviews = db.query(Review).all()
+
+    # Pre-aggregate review statistics via SQL instead of transferring all review text bodies
+    stats = db.query(
+        Review.product_id,
+        func.count(Review.id).label("total_revs"),
+        func.count(case((Review.rating <= 3.0, 1))).label("neg_revs"),
+        func.max(Review.review_date).label("latest_date")
+    ).group_by(Review.product_id).all()
+    stats_by_prod = {
+        row.product_id: {
+            "total_revs": row.total_revs,
+            "neg_revs": row.neg_revs,
+            "latest_date": row.latest_date.strftime("%Y-%m-%d") if row.latest_date else "2024-03-01"
+        }
+        for row in stats
+    }
+
+    # Only load reviews associated with detected safety signals for false-positive validation
+    sig_rev_ids = [s.review_id for s in all_signals if s.review_id]
+    signal_reviews = {}
+    if sig_rev_ids:
+        signal_reviews = {r.id: r for r in db.query(Review).filter(Review.id.in_(sig_rev_ids)).all()}
 
     signals_by_prod: Dict[str, List[Any]] = {}
     for s in all_signals:
         signals_by_prod.setdefault(s.product_id, []).append(s)
 
-    reviews_by_prod: Dict[str, List[Any]] = {}
-    for r in all_reviews:
-        reviews_by_prod.setdefault(r.product_id, []).append(r)
-
     ranked_items = []
     for p in products:
         p_signals = signals_by_prod.get(p.id, [])
-        p_reviews = reviews_by_prod.get(p.id, [])
+        p_stats = stats_by_prod.get(p.id, {"total_revs": 0, "neg_revs": 0, "latest_date": "2024-03-01"})
 
         # Filter valid signals only
         from app.ml.detection.context import is_false_positive_context
         valid_signals = []
         for s in p_signals:
-            rev = next((r for r in p_reviews if r.id == s.review_id), None)
+            rev = signal_reviews.get(s.review_id)
             if rev:
                 full_text = f"{rev.title or ''}. {rev.body or ''}"
                 if is_false_positive_context(full_text, s.phrase or s.signal_type):
@@ -45,8 +62,9 @@ def get_shared_product_risk_list(db: Session):
             valid_signals.append(s)
 
         sig_count = len(valid_signals)
-        total_revs = len(p_reviews)
-        neg_revs = len([r for r in p_reviews if r.rating <= 3.0])
+        total_revs = p_stats["total_revs"]
+        neg_revs = p_stats["neg_revs"]
+        latest_date_str = p_stats["latest_date"]
         max_sev = max([s.severity for s in valid_signals], default=0)
 
         # Composite Risk Score Calculation
