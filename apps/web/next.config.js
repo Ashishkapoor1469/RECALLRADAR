@@ -13,7 +13,7 @@ const nextConfig = {
     const backendUrl =
       process.env.NEXT_API_URL ||
       process.env.NEXT_PUBLIC_API_URL ||
-      'https://nondefinable-samatha-unnimbly.ngrok-free.dev';
+      'https://recallradar-api-upim.onrender.com';
     return [
       {
         source: '/api/v1/:path*',
