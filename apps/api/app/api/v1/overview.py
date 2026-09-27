@@ -73,10 +73,6 @@ def get_shared_product_risk_list(db: Session):
         else:
             composite_score = min(neg_revs * 3.5, 45.0) if neg_revs > 0 else 12.0
 
-        latest_date_str = "2024-03-01"
-        if p_reviews:
-            sorted_revs = sorted(p_reviews, key=lambda r: r.review_date, reverse=True)
-            latest_date_str = sorted_revs[0].review_date.strftime("%Y-%m-%d")
 
         phrases = list(set([s.phrase for s in p_signals]))
         top_category = p_signals[-1].signal_type if p_signals else ("negative reviews" if neg_revs > 0 else "none")
