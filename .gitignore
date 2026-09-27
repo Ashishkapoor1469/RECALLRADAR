@@ -9,6 +9,7 @@ prompt.md
 *prompt*.md
 prompts/
 detail.md
+LOCAL_BACKEND_GUIDE.md
 
 # Database files
 *.db
