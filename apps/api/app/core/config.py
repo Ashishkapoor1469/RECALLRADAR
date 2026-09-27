@@ -33,9 +33,19 @@ class Settings(BaseSettings):
 
     @property
     def sync_database_url(self) -> str:
-        if self.DATABASE_URL:
-            return self.DATABASE_URL
-        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        url = self.DATABASE_URL
+        if not url:
+            url = f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+            
+        if url.startswith("postgresql://"):
+            try:
+                import psycopg  # noqa: F401
+            except ImportError:
+                url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return url
 
     @property
     def sync_redis_url(self) -> str:

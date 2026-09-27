@@ -46,10 +46,13 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
       const res = await fetch(getApiUrl('/api/v1/risk-queue/stats'));
       if (res.ok) {
         const data = await res.json();
-        setHighRiskCount(data.high_risk_count ?? 14);
+        setHighRiskCount(typeof data.high_risk_count === 'number' ? data.high_risk_count : null);
+      } else {
+        setHighRiskCount(null);
       }
     } catch (e) {
       console.error('Error loading risk stats:', e);
+      setHighRiskCount(null);
     }
   };
 

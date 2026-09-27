@@ -25,10 +25,10 @@ def get_risk_queue_stats(db: Session = Depends(get_db)):
             highest_risk_name = top_prod.name
 
     return {
-        "total_products": total_products or 900,
-        "total_reviews": total_reviews or 10261,
-        "total_signals": total_signals or 14,
-        "high_risk_count": high_risk_count or 14,
+        "total_products": total_products,
+        "total_reviews": total_reviews,
+        "total_signals": total_signals,
+        "high_risk_count": high_risk_count,
         "highest_risk_item": highest_risk_name
     }
 
