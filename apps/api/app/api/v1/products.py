@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from typing import List, Optional
 from datetime import datetime, timedelta
 
@@ -43,7 +44,7 @@ def get_products_needing_attention(
 
 @router.get("/{product_id}")
 def get_product_detail(product_id: str, db: Session = Depends(get_db)):
-    product = db.query(Product).filter(Product.id == product_id).first()
+    product = db.query(Product).filter(or_(Product.id == product_id, Product.external_id == product_id)).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 

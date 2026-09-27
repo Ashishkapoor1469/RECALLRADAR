@@ -35,40 +35,8 @@ app.include_router(api_router, prefix="/api")
 
 @app.on_event("startup")
 def on_startup():
-    from app.db.session import engine, Base, SessionLocal
-    import app.models  # ensure models loaded
-    try:
-        from app.db.init_db import init_db
-        init_db()
-    except Exception as e:
-        print(f"Startup init_db notice: {e}")
-        try:
-            Base.metadata.create_all(bind=engine)
-        except Exception as ce:
-            print(f"Base.metadata.create_all error: {ce}")
-
-    # Ensure at least synthetic seed data exists so database is never empty
-    try:
-        from app.models import Product
-        with SessionLocal() as db:
-            if db.query(Product).count() == 0:
-                print("Empty database catalog detected on startup. Inserting baseline fixtures...")
-                from data.synthetic.generator import generate_synthetic_dataset
-                dataset = generate_synthetic_dataset()
-                for p in dataset["products"]:
-                    product = Product(
-                        id=p["id"],
-                        external_id=p["external_id"],
-                        name=p["name"],
-                        brand=p["brand"],
-                        category=p["category"],
-                        description=p.get("description", "")
-                    )
-                    db.merge(product)
-                db.commit()
-                print("Baseline fixtures inserted successfully.")
-    except Exception as se:
-        print(f"Startup baseline seed notice: {se}")
+    from app.db.session import engine
+    print(f"EarlyEcho API starting with database engine: {engine.dialect.name}")
 
 @app.get("/health")
 def health_check():

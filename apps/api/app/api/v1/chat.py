@@ -48,11 +48,18 @@ def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
 
     # 2. Greetings
     if query_lower in ["hi", "hello", "hey", "greetings"]:
-        greeting = (
-            "Hello! I am EarlyEcho AI Safety Copilot. "
-            "In **RAG Mode**, I execute grounded SQL queries over verified feedback and citations. "
-            "In **AI Chat Mode**, I reason through product defect histories using NVIDIA NIM and compare items against similar catalog products."
-        )
+        if mode == "ai_chat":
+            greeting = (
+                "Hello! I am EarlyEcho AI Safety Copilot powered by NVIDIA NIM. "
+                "I perform deep investigative reasoning across defect histories, safety signal clusters, and peer-product risk comparisons. "
+                "Ask me to investigate any ASIN (e.g., 'Why is B0002CZV82 critical?') or analyze failure root causes across your catalog."
+            )
+        else:
+            greeting = (
+                "Hello! I am EarlyEcho Grounded RAG Copilot. "
+                "I execute deterministic SQL queries over verified feedback, defect signals, and citations in your PostgreSQL database. "
+                "Ask me to list flagged products, compare categories, or query risk scores (e.g., 'Show products with risk score > 50')."
+            )
         return {"answer": greeting, "mode": mode, "table": None, "citations": []}
 
     # 3. Product Extraction / Drill-down Target
@@ -81,7 +88,7 @@ def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
             pr_revs = db.query(Review).filter(Review.product_id == pr.id).count()
             pr_risk = min(len(pr_sigs) * 14.5, 92.0) if pr_sigs else 12.0
             similar_products.append({
-                "id": pr.id,
+                "id": pr.external_id or pr.id,
                 "name": pr.name,
                 "brand": pr.brand or "Generic",
                 "risk_score": round(pr_risk, 1),
@@ -93,15 +100,14 @@ def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
     # MODE A: AI CHAT (NVIDIA NIM)
     # ==========================
     if mode == "ai_chat":
-        # Build contextual reasoning prompt for investigator
         evidence_items = []
         product_info = None
-        
+
         if target_prod:
             p_sigs = db.query(SafetySignal).filter(SafetySignal.product_id == target_prod.id).all()
             p_revs = db.query(Review).filter(Review.product_id == target_prod.id).order_by(Review.review_date.desc()).all()
             p_recall = db.query(Recall).filter(Recall.product_id == target_prod.id).first()
-            
+
             sig_count = len(p_sigs)
             max_sev = max([s.severity for s in p_sigs], default=0)
             risk_score = min(sig_count * 14.5 + max_sev * 10, 92.0) if sig_count > 0 else 12.0
@@ -124,37 +130,64 @@ def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
                     "evidence_text": r.body
                 })
 
-        # Try NVIDIA NIM
+        # Genuinely call NVIDIA NIM API
         nim_answer = None
         from app.core.config import settings
+        import httpx
+
         if settings.NVIDIA_NIM_API_KEY:
-            investigator_prompt = f"""You are an expert product safety compliance investigator for EarlyEcho.
-Investigate this product inquiry: "{user_query}"
+            try:
+                headers = {
+                    "Authorization": f"Bearer {settings.NVIDIA_NIM_API_KEY}",
+                    "Content-Type": "application/json"
+                }
+                system_instruction = (
+                    "You are EarlyEcho AI Safety Copilot, an expert AI product safety and compliance investigator powered by NVIDIA NIM. "
+                    "Provide a thorough, professional, and evidence-grounded investigative analysis. "
+                    "Whenever referencing customer feedback or defects, cite the specific evidence IDs [ID]."
+                )
+                user_content = f"""Investigate this product inquiry: "{user_query}"
 
 Product Context:
-{json.dumps(product_info, indent=2) if product_info else "General catalog inquiry"}
+{json.dumps(product_info, indent=2) if product_info else "Catalog-wide inquiry"}
 
-Peer Products for Comparison:
+Verified Customer Review Evidence:
+{json.dumps(evidence_items, indent=2) if evidence_items else "No direct citations"}
+
+Similar / Peer Category Products:
 {json.dumps(similar_products, indent=2) if similar_products else "None"}
 
-Customer Evidence:
-{json.dumps(evidence_items, indent=2)}
-
-Provide a clear, structured investigation report covering:
+Please provide a clear, structured investigation report:
 1. Defect Assessment & Root Cause Signals
 2. Risk Timeline & Defect Velocity
 3. Comparison with Similar Category Products
 4. Actionable Compliance Recommendation
-Cite specific evidence IDs [ID] wherever referencing feedback."""
-            nim_answer = explanation_service.query_nim_with_context(investigator_prompt, evidence_items)
+Cite specific evidence IDs [ID] wherever quoting feedback."""
+
+                payload = {
+                    "model": settings.NVIDIA_NIM_MODEL,
+                    "messages": [
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": user_content}
+                    ],
+                    "temperature": 0.2
+                }
+                with httpx.Client(timeout=20.0) as client:
+                    resp = client.post(f"{settings.NVIDIA_NIM_BASE_URL}/chat/completions", headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        nim_answer = resp.json()["choices"][0]["message"]["content"].strip()
+                    else:
+                        print(f"NVIDIA NIM status {resp.status_code}: {resp.text}")
+            except Exception as e:
+                print(f"Direct NVIDIA NIM query failed: {e}")
 
         if not nim_answer:
-            # High-fidelity deterministic investigator reasoning fallback
+            # Deterministic fallback if NIM API is temporarily unavailable
             if target_prod and product_info:
                 peer_comp_text = ""
                 if similar_products:
                     peer_comp_text = f"\n\n**Peer Comparison:** In category *{target_prod.category}*, peer products average a risk score of {round(sum(p['risk_score'] for p in similar_products)/len(similar_products), 1)}/100 across {len(similar_products)} indexed items."
-                
+
                 signals_str = ", ".join(product_info["signals"][:3]) if product_info["signals"] else "No active safety spikes"
                 nim_answer = (
                     f"### Safety Investigation: {product_info['name']} (ASIN: {product_info['id']})\n\n"
