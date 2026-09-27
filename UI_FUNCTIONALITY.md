@@ -515,3 +515,36 @@ The definitive deep-dive investigation page for a single product model. Displays
 1. **Generic "Bring-Your-Own-Data" Ingestion:** No web UI or multi-source API endpoint for uploading Zendesk tickets, Jira issues, Intercom chats, or Google Play/App Store reviews.
 2. **Multi-Tenancy & Workspace Isolation:** The app operates on a single global database catalog without organization-level data segregation.
 3. **Software/UX Defect Taxonomies:** The multi-layer detection rules focus on physical and electrical hazards (burn, shock, fire, injury) and would require custom NLP lexicons to detect software crashes, UX bugs, or SaaS onboarding drop-offs.
+
+---
+
+## 9. Web 2 — Standalone Customer Review Portal (`apps/web2`)
+
+**Purpose:**  
+Provides a completely separate, dedicated web application where customers or QA testers can write positive or negative product reviews and submit them directly into the central database (`PostgreSQL` / `SQLite`). 
+
+When a review is submitted:
+1. It is transmitted directly to the database backend (`POST /api/v1/reviews/submit`).
+2. The AI & Lexicon signal engine scans the review for positive sentiment or safety defect keywords (fire, burn, overheat, electric shock, smoke, noise, injury).
+3. The database updates instantly, recalculating product hazard risk scores and telemetry.
+4. The live review feed on Web 2 and the EarlyEcho Overview Dashboard (`apps/web`) update in real-time without requiring a page reload.
+
+---
+
+### Key Components & Simple Explanation
+
+#### 1. Quick Testing Presets (One-Click Testing)
+- **🟢 Positive Review (5 Stars):** Pre-fills a 5-star review praising product build quality, sound performance, and satisfaction.
+- **🔴 Fire Hazard Report (1 Star):** Pre-fills a 1-star review reporting adapter overheating, burning plastic smell, smoke, and fire.
+- **🟠 Defect & Electric Shock Report (2 Stars):** Pre-fills a 2-star review reporting exposed wire sparks and electric shock.
+
+#### 2. Review Form & Direct DB Transmitter
+- **Product Selector:** Choose from indexed catalog products or type a custom unlisted product name and brand.
+- **Rating Selector:** Interactive 1-to-5 star rating selector. 4-5 stars classify as Positive Sentiment; 1-3 stars classify as Negative Defect Concern.
+- **Title & Body:** Headlines and detailed review text.
+- **Submit Button:** Writes the review payload directly to the database via API, returning the unique DB record ID (`REV-XXXX`), timestamp, assigned sentiment label, and detected AI safety signals.
+
+#### 3. Real-Time Ingestion Feed & Live Counters
+- **Live DB Stats Box:** Auto-refreshes every 3.5 seconds showing real-time total reviews in DB, total positive reviews, and total defect signals flagged.
+- **Real-Time Database Feed:** Live scrolling ticker displaying newly submitted reviews directly from the database with rating stars, sentiment badges, and defect signal flags.
+

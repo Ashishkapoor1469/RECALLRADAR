@@ -50,3 +50,15 @@ class BacktestRequestSchema(BaseModel):
     alert_budget: int = 25
     threshold: float = 70.0
     categories: Optional[List[str]] = None
+
+class ReviewCreateSchema(BaseModel):
+    product_id: Optional[str] = None
+    product_name: Optional[str] = None
+    brand: Optional[str] = None
+    category: Optional[str] = "Musical Instruments"
+    rating: float
+    title: Optional[str] = ""
+    body: str
+    reviewer_name: Optional[str] = "Verified Customer"
+    source: Optional[str] = "Customer Review Portal"
+

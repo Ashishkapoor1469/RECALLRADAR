@@ -11,7 +11,8 @@ from app.api.v1 import (
     system,
     overview,
     chat,
-    trends
+    trends,
+    reviews
 )
 
 api_router = APIRouter()
@@ -19,6 +20,7 @@ api_router = APIRouter()
 api_router.include_router(system.router, prefix="/system", tags=["System"])
 api_router.include_router(overview.router, prefix="/overview", tags=["Overview"])
 api_router.include_router(products.router, prefix="/products", tags=["Products"])
+api_router.include_router(reviews.router, prefix="/reviews", tags=["Reviews Portal"])
 api_router.include_router(risk_queue.router, prefix="/risk-queue", tags=["Risk Queue"])
 api_router.include_router(alerts.router, prefix="/alerts", tags=["Alerts"])
 api_router.include_router(backtests.router, prefix="/backtests", tags=["Backtest Lab"])
@@ -27,3 +29,4 @@ api_router.include_router(chat.router, prefix="/chat", tags=["Chat Copilot"])
 api_router.include_router(ask.router, prefix="/ask", tags=["Ask RecallRadar"])
 api_router.include_router(data_quality.router, prefix="/data-quality", tags=["Data Quality"])
 api_router.include_router(demo.router, prefix="/demo", tags=["Demo Mode"])
+
