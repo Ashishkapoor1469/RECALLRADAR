@@ -1,15 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import DemoControls from './DemoControls';
 import SidebarNav from './SidebarNav';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [pathname, searchParams]);
+
+  useEffect(() => {
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a');
+      if (target && target.href && !target.target && target.origin === window.location.origin) {
+        if (target.pathname !== window.location.pathname || target.search !== window.location.search) {
+          setIsNavigating(true);
+        }
+      }
+    };
+    window.addEventListener('click', handleLinkClick);
+    return () => window.removeEventListener('click', handleLinkClick);
+  }, []);
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full relative">
+      {isNavigating && (
+        <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gradient-to-r from-brand-600 via-emerald-400 to-brand-600 animate-pulse"></div>
+      )}
       {/* Sidebar Navigation (Desktop + Mobile Drawer) */}
       <SidebarNav
         isOpenMobile={isMobileMenuOpen}
@@ -34,7 +58,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
             <div className="flex items-center gap-2 text-xs font-medium text-slate-400 min-w-0">
               <Link href="/" className="hover:text-slate-700 font-extrabold text-slate-900 md:text-slate-700 truncate text-sm sm:text-xs tracking-tight">
-                RecallRadar
+                EarlyEcho
               </Link>
               <svg className="hidden sm:block w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>

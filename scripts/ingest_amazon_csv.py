@@ -84,11 +84,21 @@ def ingest_csv(csv_path: str, limit: int = None):
                 summary = row.get("summary", "") or ""
                 review_text = row.get("reviewText", "") or ""
                 rating = float(row.get("overall", 5.0))
+                reviewer_id = row.get("reviewerID")
+
+                # Deduplication check
+                existing_rev = db.query(Review).filter(
+                    Review.product_id == prod_id,
+                    Review.external_id == reviewer_id,
+                    Review.review_date == review_dt
+                ).first()
+                if existing_rev:
+                    continue
 
                 review = Review(
                     id=review_id,
                     product_id=prod_id,
-                    external_id=row.get("reviewerID"),
+                    external_id=reviewer_id,
                     rating=rating,
                     title=summary,
                     body=review_text,
@@ -100,9 +110,9 @@ def ingest_csv(csv_path: str, limit: int = None):
                 db.flush()
                 total_reviews += 1
 
-                # Safety Signal Detection
+                # Safety Signal Detection with rating context
                 full_text = f"{summary}. {review_text}"
-                detections = detector.detect(full_text)
+                detections = detector.detect(full_text, rating=rating)
                 for d in detections:
                     signal = SafetySignal(
                         id=generate_uuid(),

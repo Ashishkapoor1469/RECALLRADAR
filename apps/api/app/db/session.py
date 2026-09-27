@@ -9,7 +9,7 @@ try:
         pool_pre_ping=True,
         pool_size=10,
         max_overflow=20,
-        connect_args={"connect_timeout": 2}
+        connect_args={"connect_timeout": 10, "application_name": "earlyecho"}
     )
     with engine.connect() as conn:
         pass

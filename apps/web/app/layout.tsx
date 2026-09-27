@@ -3,7 +3,7 @@ import ClientLayout from '../components/ClientLayout';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'RecallRadar — Safety Intelligence & Early Recall Warning',
+  title: 'EarlyEcho — Safety Intelligence & Early Recall Warning',
   description: 'Continuous AI defect surveillance across verified consumer reports, warranty claim logs, and early recall risk indicators.',
 };
 

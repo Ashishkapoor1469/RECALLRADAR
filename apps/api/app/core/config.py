@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     CPSC_API_URL: str = "https://www.saferproducts.gov/RestServices"
     SAFER_PRODUCTS_URL: str = "https://www.saferproducts.gov/RestServices"
 
+    RESEND_API_KEY: Optional[str] = None
+    RESEND_FROM_EMAIL: str = "EarlyEcho Safety Alerts <alerts@ashishzu.in>"
+    ALERT_RECIPIENT_EMAIL: str = "safety-officer@ashishzu.in"
+
     @property
     def sync_database_url(self) -> str:
         if self.DATABASE_URL:
@@ -35,8 +39,9 @@ class Settings(BaseSettings):
 
     @property
     def sync_redis_url(self) -> str:
-        if self.REDIS_URL:
-            return self.REDIS_URL
+        # Standardize on REDIS_URL as single connection variable
+        if self.REDIS_URL and self.REDIS_URL.strip():
+            return self.REDIS_URL.strip()
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
 
     class Config:

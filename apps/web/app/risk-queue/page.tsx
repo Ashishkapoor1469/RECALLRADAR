@@ -31,6 +31,7 @@ function RiskQueueContent() {
   const [page, setPage] = useState<number>(pageParam);
 
   const [loading, setLoading] = useState(true);
+  const [inspectingId, setInspectingId] = useState<string | null>(null);
   const [minRisk, setMinRisk] = useState<number>(0);
   const [category, setCategory] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('highest_risk');
@@ -53,8 +54,9 @@ function RiskQueueContent() {
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
-        setTotalItems(data.total || 0);
-        setTotalPages(data.total_pages || 1);
+        const total = data.total || 0;
+        setTotalItems(total);
+        setTotalPages(data.total_pages || Math.max(1, Math.ceil(total / 10)));
       }
     } catch (e) {
       console.error('Error fetching risk queue data:', e);
@@ -262,10 +264,20 @@ function RiskQueueContent() {
                 <span className="text-slate-500 font-medium font-mono">ASIN: {item.id}</span>
                 <Link
                   href={`/products/${item.id}`}
-                  className="font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1 group"
+                  onClick={() => setInspectingId(item.id)}
+                  className="font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1.5 group"
                 >
-                  <span>Inspect Product</span>
-                  <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                  {inspectingId === item.id ? (
+                    <>
+                      <span className="w-3 h-3 rounded-full border-2 border-brand-600 border-t-transparent animate-spin inline-block"></span>
+                      <span>Inspecting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Inspect Product</span>
+                      <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                    </>
+                  )}
                 </Link>
               </div>
             </div>

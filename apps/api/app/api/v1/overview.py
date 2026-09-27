@@ -31,16 +31,29 @@ def get_shared_product_risk_list(db: Session):
         p_signals = signals_by_prod.get(p.id, [])
         p_reviews = reviews_by_prod.get(p.id, [])
 
-        sig_count = len(p_signals)
+        # Filter valid signals only
+        from app.ml.detection.context import is_false_positive_context
+        valid_signals = []
+        for s in p_signals:
+            rev = next((r for r in p_reviews if r.id == s.review_id), None)
+            if rev:
+                full_text = f"{rev.title or ''}. {rev.body or ''}"
+                if is_false_positive_context(full_text, s.phrase or s.signal_type):
+                    continue
+                if rev.rating >= 4.0 and not any(w in full_text.lower() for w in ["caught fire", "hospital", "burned my", "laceration"]):
+                    continue
+            valid_signals.append(s)
+
+        sig_count = len(valid_signals)
         total_revs = len(p_reviews)
         neg_revs = len([r for r in p_reviews if r.rating <= 3.0])
-        max_sev = max([s.severity for s in p_signals], default=0)
+        max_sev = max([s.severity for s in valid_signals], default=0)
 
         # Composite Risk Score Calculation
         if sig_count > 0:
             composite_score = min(sig_count * 14.5 + max_sev * 10.0, 92.0)
         else:
-            composite_score = min(neg_revs * 3.5, 45.0)
+            composite_score = min(neg_revs * 3.5, 45.0) if neg_revs > 0 else 12.0
 
         latest_date_str = "2024-03-01"
         if p_reviews:

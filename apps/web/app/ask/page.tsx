@@ -8,29 +8,50 @@ import { getApiUrl } from '../../lib/api';
 interface ChatMessage {
   sender: 'user' | 'assistant';
   text: string;
+  mode?: 'rag' | 'ai_chat';
   table?: {
     columns: string[];
     rows: any[][];
   } | null;
   citations?: string[];
+  productDetail?: {
+    id: string;
+    name: string;
+    brand?: string;
+    category?: string;
+    risk_score: number;
+    signals?: string[];
+  } | null;
+  similarProducts?: Array<{
+    id: string;
+    name: string;
+    brand: string;
+    risk_score: number;
+    signal_count: number;
+    review_count: number;
+  }>;
 }
 
-export default function AskRecallRadarPage() {
+export default function AskEarlyEchoPage() {
   const [query, setQuery] = useState('');
+  const [mode, setMode] = useState<'rag' | 'ai_chat'>('rag');
+  const [selectedAsin, setSelectedAsin] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       sender: 'assistant',
-      text: 'Hello! I am RecallRadar SQL AI Safety Copilot. I execute whitelisted SQL tools over PostgreSQL to analyze review telemetry, defect signals, and product hazards. How can I help you today?',
+      mode: 'rag',
+      text: 'Hello! I am EarlyEcho AI Safety Copilot. Use the toggle above to switch between Grounded RAG mode (direct database queries & citations) and AI Chat mode (investigative reasoning powered by NVIDIA NIM).',
     },
   ]);
 
-  const handleSend = async (textToSend?: string) => {
+  const handleSend = async (textToSend?: string, overrideMode?: 'rag' | 'ai_chat') => {
     const q = textToSend || query;
-    if (!q.trim()) return;
+    if (!q.trim() && !selectedAsin) return;
 
-    const userMsg = q.trim();
-    setMessages((prev) => [...prev, { sender: 'user', text: userMsg }]);
+    const activeMode = overrideMode || mode;
+    const userMsg = q.trim() || `Analyze product ASIN ${selectedAsin}`;
+    setMessages((prev) => [...prev, { sender: 'user', text: userMsg, mode: activeMode }]);
     if (!textToSend) setQuery('');
     setLoading(true);
 
@@ -38,7 +59,11 @@ export default function AskRecallRadarPage() {
       const res = await fetch(getApiUrl('/api/v1/chat/'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: userMsg }),
+        body: JSON.stringify({
+          query: userMsg,
+          mode: activeMode,
+          product_id: selectedAsin || undefined
+        }),
       });
 
       if (res.ok) {
@@ -47,9 +72,12 @@ export default function AskRecallRadarPage() {
           ...prev,
           {
             sender: 'assistant',
+            mode: activeMode,
             text: data.answer || 'No relevant evidence found in database.',
             table: data.table || null,
             citations: data.citations || [],
+            productDetail: data.product_detail || null,
+            similarProducts: data.similar_products || [],
           },
         ]);
       } else {
@@ -57,6 +85,7 @@ export default function AskRecallRadarPage() {
           ...prev,
           {
             sender: 'assistant',
+            mode: activeMode,
             text: 'Error processing your request. Please try again.',
           },
         ]);
@@ -66,7 +95,8 @@ export default function AskRecallRadarPage() {
         ...prev,
         {
           sender: 'assistant',
-          text: 'Unable to connect to backend SQL search service.',
+          mode: activeMode,
+          text: 'Unable to connect to backend intelligence search service.',
         },
       ]);
     } finally {
@@ -83,7 +113,7 @@ export default function AskRecallRadarPage() {
 
     const link = document.createElement('a');
     link.setAttribute('href', csvContent);
-    link.setAttribute('download', `recallradar_query_export_${idx}.csv`);
+    link.setAttribute('download', `earlyecho_query_export_${idx}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -91,155 +121,212 @@ export default function AskRecallRadarPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+      {/* Header with Mode Toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Ask RecallRadar AI</h1>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full text-emerald-800 bg-emerald-100 border border-emerald-200 whitespace-nowrap">
-              NVIDIA NIM SQL Tool Agent
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Ask EarlyEcho AI</h1>
+            <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${
+              mode === 'ai_chat' ? 'text-indigo-800 bg-indigo-100 border-indigo-200' : 'text-emerald-800 bg-emerald-100 border border-emerald-200'
+            }`}>
+              {mode === 'ai_chat' ? 'NVIDIA NIM Copilot' : 'Grounded RAG Mode'}
             </span>
           </div>
-          <p className="text-slate-500 text-xs mt-1 leading-relaxed">
-            Grounded SQL function calling over PostgreSQL DB. Every insight cites database review evidence and exportable table queries.
+          <p className="text-slate-500 text-xs mt-1">
+            {mode === 'ai_chat'
+              ? 'Conversational safety investigator reasoning through defect history, citations, and category comparisons.'
+              : 'Deterministic grounded Q&A with whitelisted SQL tools and direct evidence citations.'}
           </p>
         </div>
 
-        {/* Quick Sample Prompts */}
-        <div className="flex flex-wrap gap-2 text-xs font-medium">
+        {/* Mode Selector Pill Toggle */}
+        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0 select-none">
           <button
-            onClick={() => handleSend('Show products with top risk defects in a table')}
-            className="px-2.5 sm:px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition"
+            onClick={() => setMode('rag')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+              mode === 'rag' ? 'bg-white text-brand-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+            }`}
           >
-            📊 Top Risk Products
+            🔍 RAG Mode
           </button>
           <button
-            onClick={() => handleSend('Show table of cable noise reports')}
-            className="px-2.5 sm:px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition"
+            onClick={() => setMode('ai_chat')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+              mode === 'ai_chat' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'
+            }`}
           >
-            🔌 Cable Noise Reports
+            🤖 AI Chat (NVIDIA NIM)
           </button>
         </div>
       </div>
 
-      {/* Chat Container */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-card min-h-[480px] flex flex-col justify-between space-y-4">
-        <div className="space-y-6 overflow-y-auto max-h-[520px] pr-2">
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+      {/* Product Drill-Down Bar */}
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <span className="font-bold text-slate-700 whitespace-nowrap">Product Drill-down:</span>
+          <input
+            type="text"
+            placeholder="Enter ASIN (e.g. B0002CZV82)"
+            value={selectedAsin}
+            onChange={(e) => setSelectedAsin(e.target.value)}
+            className="px-3 py-1.5 border border-slate-200 rounded-lg font-mono text-xs w-full sm:w-48 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          />
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+          <span className="text-slate-400 font-medium whitespace-nowrap">Quick samples:</span>
+          {['B0002CZV82', 'B0002D0B4K', 'B000165DSM'].map((sample) => (
+            <button
+              key={sample}
+              onClick={() => {
+                setSelectedAsin(sample);
+                handleSend(`Investigate defects and compare product ${sample}`, mode);
+              }}
+              className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-mono text-[11px] rounded-md border border-slate-200 whitespace-nowrap"
             >
-              {msg.sender === 'assistant' && (
-                <div className="w-8 h-8 rounded-xl bg-brand-700 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm mt-1">
-                  RR
+              {sample}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Messages Feed */}
+      <div className="space-y-4">
+        {messages.map((m, idx) => (
+          <div
+            key={idx}
+            className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
+          >
+            <div
+              className={`max-w-3xl rounded-2xl p-5 text-xs sm:text-sm leading-relaxed shadow-sm ${
+                m.sender === 'user'
+                  ? 'bg-brand-700 text-white font-medium'
+                  : 'bg-white border border-slate-200/80 text-slate-800'
+              }`}
+            >
+              <div className="whitespace-pre-line">{m.text}</div>
+
+              {/* Product Drill-Down Detail Card */}
+              {m.productDetail && (
+                <div className="mt-4 pt-3 border-t border-slate-100 bg-slate-50 p-3.5 rounded-xl border">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-slate-900 text-xs">{m.productDetail.name}</span>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-200">
+                      Hazard Score: {m.productDetail.risk_score} / 100
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-mono">ASIN: {m.productDetail.id}</span>
                 </div>
               )}
 
-              <div
-                className={`max-w-3xl rounded-2xl p-4 text-xs leading-relaxed space-y-3 ${
-                  msg.sender === 'user'
-                    ? 'bg-brand-700 text-white font-medium self-end'
-                    : 'bg-slate-50 border border-slate-200/80 text-slate-800'
-                }`}
-              >
-                <div className="whitespace-pre-line text-xs font-sans leading-normal">
-                  {msg.text}
-                </div>
-
-                {/* Structured Table Response with CSV Export */}
-                {msg.table && msg.table.rows && msg.table.rows.length > 0 && (
-                  <div className="mt-3 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-                    <div className="p-2.5 bg-slate-100/80 border-b border-slate-200 flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-slate-700">SQL Tool Execution Result</span>
-                      <button
-                        onClick={() => handleDownloadCSV(msg.table!, idx)}
-                        className="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-brand-700 font-extrabold hover:bg-brand-50 transition flex items-center gap-1 shadow-2xs"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                        </svg>
-                        Export CSV
-                      </button>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-[11px] border-collapse">
-                        <thead>
-                          <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
-                            {msg.table.columns.map((col, cIdx) => (
-                              <th key={cIdx} className="py-2 px-3">{col}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                          {msg.table.rows.map((row, rIdx) => (
-                            <tr key={rIdx} className="hover:bg-slate-50/60 transition">
-                              {row.map((cell, cIdx) => (
-                                <td key={cIdx} className="py-2 px-3 max-w-[200px] truncate" title={String(cell)}>
-                                  {String(cell)}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {/* Citations Footer */}
-                {msg.citations && msg.citations.length > 0 && (
-                  <div className="pt-2 border-t border-slate-200/60 flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Citations:</span>
-                    {msg.citations.map((c, i) => (
-                      <span
-                        key={i}
-                        className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 font-mono"
-                      >
-                        {c}
-                      </span>
+              {/* Similar Products Peer Comparison Table */}
+              {m.similarProducts && m.similarProducts.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-slate-100">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                    Catalog Peer Comparison
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {m.similarProducts.map((p) => (
+                      <div key={p.id} className="p-2.5 rounded-lg bg-white border border-slate-200 text-[11px] flex justify-between items-center">
+                        <div className="truncate mr-2">
+                          <span className="font-bold text-slate-800 block truncate">{p.name}</span>
+                          <span className="text-slate-400 font-mono text-[10px]">{p.brand}</span>
+                        </div>
+                        <span className="font-mono font-bold text-slate-700 shrink-0">
+                          {p.risk_score} Score
+                        </span>
+                      </div>
                     ))}
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
+                </div>
+              )}
 
-          {loading && (
-            <div className="flex gap-3 items-center text-slate-400 text-xs italic">
-              <div className="w-8 h-8 rounded-xl bg-brand-700 text-white flex items-center justify-center font-bold text-xs animate-pulse">
-                RR
-              </div>
-              <span>Executing SQL tools &amp; formatting response...</span>
-            </div>
-          )}
-        </div>
+              {/* Interactive SQL Table Output (RAG Mode) */}
+              {m.table && (
+                <div className="mt-4 pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      SQL Result Telemetry
+                    </span>
+                    <button
+                      onClick={() => handleDownloadCSV(m.table!, idx)}
+                      className="px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold rounded border border-slate-200 flex items-center gap-1 transition"
+                    >
+                      <span>Download CSV</span>
+                      <span>&darr;</span>
+                    </button>
+                  </div>
+                  <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table className="w-full text-left border-collapse text-[11px]">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+                          {m.table.columns.map((c, i) => (
+                            <th key={i} className="py-2 px-3">{c}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-slate-700 font-mono">
+                        {m.table.rows.map((row, rIdx) => (
+                          <tr key={rIdx} className="hover:bg-slate-50/80">
+                            {row.map((cell, cIdx) => (
+                              <td key={cIdx} className="py-1.5 px-3 whitespace-nowrap">{String(cell)}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
-        {/* Input Form */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="flex items-center gap-3 pt-4 border-t border-slate-100"
+              {/* Grounded Evidence Citations */}
+              {m.citations && m.citations.length > 0 && (
+                <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px]">
+                  <span className="text-slate-400 font-semibold block mb-1">Evidence Citations:</span>
+                  <div className="space-y-1">
+                    {m.citations.map((c, cIdx) => (
+                      <div key={cIdx} className="text-slate-600 bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                        {c}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {loading && (
+          <div className="flex items-center gap-2 p-4 bg-white border border-slate-200/80 rounded-2xl w-fit shadow-sm text-xs text-slate-500">
+            <span className="w-4 h-4 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></span>
+            <span>{mode === 'ai_chat' ? 'NVIDIA NIM investigator reasoning...' : 'Executing SQL tool over database...'}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Input Box */}
+      <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-card flex items-center gap-2">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          placeholder={
+            mode === 'ai_chat'
+              ? 'Ask investigator to reason through a defect, e.g. "Why is B0002CZV82 critical and how does it compare to peers?"'
+              : 'Query database tables, e.g. "Show top 5 risk products with safety signals in a table"'
+          }
+          className="flex-1 text-xs sm:text-sm px-3 py-2 bg-transparent focus:outline-none text-slate-800 placeholder-slate-400"
+        />
+        <button
+          onClick={() => handleSend()}
+          disabled={loading || (!query.trim() && !selectedAsin)}
+          className={`px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-sm transition flex items-center gap-1.5 disabled:opacity-40 ${
+            mode === 'ai_chat' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-brand-700 hover:bg-brand-800'
+          }`}
         >
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ask a question (e.g. Show table of top risk products or cable noise reports)"
-            className="flex-1 bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 text-xs rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500/20 font-medium"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-5 py-3 bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center gap-1.5 disabled:opacity-50"
-          >
-            <span>Ask AI</span>
-            <span>&rarr;</span>
-          </button>
-        </form>
+          <span>Send</span>
+          <span>&rarr;</span>
+        </button>
       </div>
     </div>
   );

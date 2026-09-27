@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 
 from app.db.session import get_db
-from app.models import Product, Review, SafetySignal, Alert, Recall, ProductRiskSnapshot
+from app.models import Product, Review, SafetySignal, Alert, Recall, ProductRiskSnapshot, ReviewSignal
 from app.schemas.schemas import ProductSchema, RiskTimelinePointSchema
 
 router = APIRouter()
@@ -52,71 +52,94 @@ def get_product_detail(product_id: str, db: Session = Depends(get_db)):
     signals = db.query(SafetySignal).filter(SafetySignal.product_id == product_id).all()
     review_signals = db.query(ReviewSignal).filter(ReviewSignal.product_id == product_id).all()
     
+    # Filter out false positive signals (e.g. audio bleeding in 5-star reviews)
+    from app.ml.detection.context import is_false_positive_context
+    valid_signals = []
+    for s in signals:
+        backing_rev = db.query(Review).filter(Review.id == s.review_id).first() if s.review_id else None
+        if backing_rev:
+            full_text = f"{backing_rev.title or ''}. {backing_rev.body or ''}"
+            if is_false_positive_context(full_text, s.phrase or s.signal_type):
+                continue
+            if backing_rev.rating >= 4.0 and not any(w in full_text.lower() for w in ["caught fire", "hospital", "burned my", "laceration"]):
+                continue
+        valid_signals.append(s)
+
     # Calculate current risk consistently with Risk Queue
     snapshots = db.query(ProductRiskSnapshot).filter(ProductRiskSnapshot.product_id == product_id).order_by(ProductRiskSnapshot.snapshot_date.desc()).all()
-    if snapshots:
+    if snapshots and len(valid_signals) > 0:
         current_risk = snapshots[0].risk_score
     else:
-        sig_count = len(signals)
-        max_sev = max([s.severity for s in signals], default=0)
-        current_risk = min(sig_count * 14.5 + max_sev * 10, 92.0) if sig_count > 0 else 12.0
+        sig_count = len(valid_signals)
+        max_sev = max([s.severity for s in valid_signals], default=0)
+        neg_count = db.query(Review).filter(Review.product_id == product_id, Review.rating <= 3.0).count()
+        current_risk = min(sig_count * 14.5 + max_sev * 10, 92.0) if sig_count > 0 else (min(neg_count * 3.5, 45.0) if neg_count > 0 else 12.0)
 
-    # Extract phrases and signal cluster label
-    signal_phrases = list(dict.fromkeys([s.phrase for s in signals if s.phrase]))
-    signal_types = list(dict.fromkeys([s.signal_type for s in signals if s.signal_type]))
+    # Extract phrases and signal cluster label strictly from valid signals
+    signal_phrases = list(dict.fromkeys([s.phrase for s in valid_signals if s.phrase]))
+    signal_types = list(dict.fromkeys([s.signal_type for s in valid_signals if s.signal_type]))
     
     if signal_phrases:
         signal_cluster = ", ".join(signal_phrases[:3])
     elif signal_types:
         signal_cluster = ", ".join(signal_types[:3])
-    elif review_signals:
-        rev_cats = list(dict.fromkeys([rs.category for rs in review_signals if rs.category]))
-        signal_cluster = ", ".join(rev_cats[:3])
     else:
         signal_cluster = "No active defect signals"
 
-    # Query evidence reviews directly tied to signals/defects
-    signal_review_ids = set([s.review_id for s in signals if s.review_id] + [rs.review_id for rs in review_signals if rs.review_id])
+    # Query evidence reviews directly tied to signals/defects with strict deduplication
+    valid_signal_rev_ids = set([s.review_id for s in valid_signals if s.review_id])
     
     evidence_reviews = []
-    if signal_review_ids:
-        evidence_reviews = db.query(Review).filter(Review.id.in_(list(signal_review_ids))).order_by(Review.review_date.desc()).limit(5).all()
+    seen_review_keys = set()
 
-    retrieved_ids = set([r.id for r in evidence_reviews])
+    def add_review_if_distinct(r):
+        if not r or not r.body:
+            return False
+        # Deduplicate by normalized text body and external reviewer ID
+        norm_body = r.body.strip().lower()
+        key = (r.external_id or '', norm_body[:100])
+        if key in seen_review_keys:
+            return False
+        seen_review_keys.add(key)
+        evidence_reviews.append(r)
+        return True
+
+    if valid_signal_rev_ids:
+        tied_revs = db.query(Review).filter(Review.id.in_(list(valid_signal_rev_ids))).order_by(Review.review_date.desc()).all()
+        for tr in tied_revs:
+            if len(evidence_reviews) >= 5:
+                break
+            add_review_if_distinct(tr)
+
     if len(evidence_reviews) < 5 and signal_phrases:
         for phrase in signal_phrases:
-            matching = db.query(Review).filter(Review.product_id == product_id, Review.body.ilike(f"%{phrase}%")).order_by(Review.review_date.desc()).limit(5).all()
+            matching = db.query(Review).filter(Review.product_id == product_id, Review.body.ilike(f"%{phrase}%")).order_by(Review.review_date.desc()).all()
             for m in matching:
-                if m.id not in retrieved_ids and len(evidence_reviews) < 5:
-                    evidence_reviews.append(m)
-                    retrieved_ids.add(m.id)
+                if len(evidence_reviews) >= 5:
+                    break
+                add_review_if_distinct(m)
 
     if len(evidence_reviews) < 5:
-        neg_reviews = db.query(Review).filter(Review.product_id == product_id, Review.rating <= 3.0).order_by(Review.review_date.desc()).limit(5).all()
+        neg_reviews = db.query(Review).filter(Review.product_id == product_id, Review.rating <= 3.0).order_by(Review.review_date.desc()).all()
         for nr in neg_reviews:
-            if nr.id not in retrieved_ids and len(evidence_reviews) < 5:
-                evidence_reviews.append(nr)
-                retrieved_ids.add(nr.id)
+            if len(evidence_reviews) >= 5:
+                break
+            add_review_if_distinct(nr)
 
     if len(evidence_reviews) < 5:
-        recent = db.query(Review).filter(Review.product_id == product_id).order_by(Review.review_date.desc()).limit(5).all()
+        recent = db.query(Review).filter(Review.product_id == product_id).order_by(Review.review_date.desc()).all()
         for rc in recent:
-            if rc.id not in retrieved_ids and len(evidence_reviews) < 5:
-                evidence_reviews.append(rc)
-                retrieved_ids.add(rc.id)
+            if len(evidence_reviews) >= 5:
+                break
+            add_review_if_distinct(rc)
 
     formatted_reviews = []
     for r in evidence_reviews:
         matched_phrase = None
-        for s in signals:
+        for s in valid_signals:
             if s.review_id == r.id or (s.phrase and s.phrase.lower() in r.body.lower()):
                 matched_phrase = s.phrase or s.signal_type
                 break
-        if not matched_phrase:
-            for rs in review_signals:
-                if rs.review_id == r.id:
-                    matched_phrase = rs.keyword or rs.category
-                    break
 
         formatted_reviews.append({
             "id": r.external_id or r.id,

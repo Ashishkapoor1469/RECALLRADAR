@@ -5,10 +5,13 @@ import { getApiUrl } from '../../lib/api';
 
 export default function AlertsPage() {
   const [ruleInput, setRuleInput] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('safety-lead@company.internal');
   const [rules, setRules] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [evaluating, setEvaluating] = useState(false);
+  const [dispatchStatus, setDispatchStatus] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAlertsAndRules();
@@ -18,8 +21,8 @@ export default function AlertsPage() {
     setLoading(true);
     try {
       const [alertsRes, rulesRes] = await Promise.all([
-        fetch(getApiUrl('/api/v1/alerts/')).then(r => r.json()).catch(() => []),
-        fetch(getApiUrl('/api/v1/alerts/rules')).then(r => r.json()).catch(() => [])
+        fetch(getApiUrl('/api/v1/alerts/')).then((r) => r.json()).catch(() => []),
+        fetch(getApiUrl('/api/v1/alerts/rules')).then((r) => r.json()).catch(() => [])
       ]);
       setAlerts(Array.isArray(alertsRes) ? alertsRes : []);
       setRules(Array.isArray(rulesRes) ? rulesRes : []);
@@ -53,33 +56,102 @@ export default function AlertsPage() {
     }
   };
 
+  const handleEvaluateAndDispatch = async () => {
+    setEvaluating(true);
+    setDispatchStatus(null);
+    try {
+      const res = await fetch(getApiUrl('/api/v1/alerts/evaluate-and-dispatch'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: recipientEmail.trim() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDispatchStatus(`Successfully evaluated directives and dispatched ${data.fired_count} alert emails to ${data.recipient} via Resend.`);
+        await fetchAlertsAndRules();
+      } else {
+        setDispatchStatus('Failed to evaluate directives. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error dispatching alerts:', err);
+      setDispatchStatus('Error connecting to alert dispatch service.');
+    } finally {
+      setEvaluating(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Critical Priority Alerts &amp; Rule Engine</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              Critical Priority Alerts &amp; Rule Engine
+            </h1>
             <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 whitespace-nowrap">
               {alerts.length} Active System Alerts
             </span>
           </div>
           <p className="text-slate-500 text-xs mt-1 leading-relaxed">
-            Automated severity threshold triggers and natural language rule interpretation engine.
+            Automated severity threshold triggers, natural language rule compilation, and real transactional email dispatch.
           </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleEvaluateAndDispatch}
+            disabled={evaluating}
+            className="px-4 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2 disabled:opacity-50"
+          >
+            {evaluating ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Evaluating &amp; Dispatching...</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                </svg>
+                <span>Fire Directives &amp; Send Alerts</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Natural Language Rule Creator */}
-      <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-700 rounded-2xl p-6 text-white shadow-card-hover">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span className="text-xs font-bold text-brand-200 uppercase tracking-wider">Natural Language Alert Engine</span>
+      {dispatchStatus && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-between">
+          <span>{dispatchStatus}</span>
+          <button onClick={() => setDispatchStatus(null)} className="text-emerald-600 hover:text-emerald-900 text-sm font-bold">&times;</button>
         </div>
-        <h2 className="text-lg font-bold text-white mb-2">Create Custom Safety Alert Rule</h2>
-        <p className="text-xs text-brand-100 mb-4 leading-relaxed">
-          Type rules in plain English. RecallRadar translates your intent into structured temporal filters and threshold triggers.
-        </p>
+      )}
+
+      {/* Natural Language Rule Creator */}
+      <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-700 rounded-2xl p-6 text-white shadow-card-hover space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span className="text-xs font-bold text-brand-200 uppercase tracking-wider">Natural Language Alert Engine</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-brand-200 font-medium">Notification Recipient:</span>
+            <input
+              type="email"
+              value={recipientEmail}
+              onChange={(e) => setRecipientEmail(e.target.value)}
+              className="bg-white/10 border border-white/20 text-white text-xs px-2.5 py-1 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-400 font-mono"
+            />
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-bold text-white mb-1">Create Custom Safety Alert Rule</h2>
+          <p className="text-xs text-brand-100 leading-relaxed">
+            Type rules in plain English. EarlyEcho compiles directives into temporal filters and fires real transactional email alerts via Resend when thresholds are breached.
+          </p>
+        </div>
 
         <form onSubmit={handleAddRule} className="flex flex-col sm:flex-row items-center gap-3">
           <input 
@@ -104,7 +176,7 @@ export default function AlertsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Configured Rules */}
         <div className="lg:col-span-6 space-y-4">
-          <h2 className="text-base font-bold text-slate-900">Active Database Rules ({rules.length})</h2>
+          <h2 className="text-base font-bold text-slate-900">Active Directives &amp; Rules ({rules.length})</h2>
           {loading ? (
             <div className="p-6 text-center text-slate-400 text-xs">Loading alert rules...</div>
           ) : rules.length === 0 ? (
@@ -119,7 +191,7 @@ export default function AlertsPage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-800">{rule.name || rule.description}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Type: {rule.rule_type || 'Threshold'} • Status: Compiled & Active</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Type: {rule.rule_type || 'Threshold'} • Status: Compiled &amp; Active</p>
                     </div>
                   </div>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
@@ -133,11 +205,17 @@ export default function AlertsPage() {
 
         {/* Right Column: Triggered Anomaly Alerts */}
         <div className="lg:col-span-6 space-y-4">
-          <h2 className="text-base font-bold text-slate-900">Triggered System Alerts ({alerts.length})</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold text-slate-900">Triggered System Alerts ({alerts.length})</h2>
+            <span className="text-[11px] text-slate-400 font-medium">Live Telemetry &amp; Dispatch Receipts</span>
+          </div>
+
           {loading ? (
             <div className="p-6 text-center text-slate-400 text-xs">Loading active alerts...</div>
           ) : alerts.length === 0 ? (
-            <div className="p-6 text-center text-slate-400 text-xs">No active alerts triggered in database.</div>
+            <div className="p-8 text-center bg-white border border-slate-200/80 rounded-2xl text-slate-400 text-xs">
+              No active alerts triggered in database. Click "Fire Directives &amp; Send Alerts" above to run live rule matching.
+            </div>
           ) : (
             <div className="space-y-3">
               {alerts.map((alertItem, idx) => (
@@ -145,17 +223,31 @@ export default function AlertsPage() {
                   alertItem.risk_score >= 70 ? 'border-rose-200' : 'border-slate-200/80'
                 }`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded border ${
-                      alertItem.risk_score >= 70 ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-amber-700 bg-amber-50 border-amber-200'
-                    }`}>
-                      {alertItem.confidence || 'HIGH'} SEVERITY
-                    </span>
-                    <span className="text-[11px] text-slate-400 font-medium">{alertItem.triggered_at}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded border ${
+                        alertItem.risk_score >= 70 ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-amber-700 bg-amber-50 border-amber-200'
+                      }`}>
+                        {alertItem.confidence || 'HIGH'} SEVERITY
+                      </span>
+                      <span className="text-[10px] font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200 font-mono">
+                        Risk: {alertItem.risk_score}/100
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-mono">{alertItem.triggered_at}</span>
                   </div>
+
                   <h3 className="text-sm font-bold text-slate-900">{alertItem.product_name}</h3>
                   <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                    {alertItem.explanation || `Risk score ${alertItem.risk_score}/100 exceeded active threshold for ${alertItem.category}.`}
+                    {alertItem.explanation || `Risk score ${alertItem.risk_score}/100 exceeded active threshold.`}
                   </p>
+
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                    <span className="text-slate-400 font-mono">ASIN: {alertItem.product_id}</span>
+                    <span className="text-emerald-700 font-semibold flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      <span>{alertItem.delivery_receipt?.status || 'Dispatched via Resend'} ({alertItem.delivery_receipt?.recipient || recipientEmail})</span>
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

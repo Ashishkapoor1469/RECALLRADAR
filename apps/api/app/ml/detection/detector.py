@@ -27,7 +27,7 @@ SEVERITY_MAPPING = {
 class SafetySignalDetector:
     """Hybrid multi-layer safety signal detector."""
 
-    def detect(self, text: str) -> List[Dict[str, Any]]:
+    def detect(self, text: str, rating: Optional[float] = None) -> List[Dict[str, Any]]:
         """Scans text for safety signals and returns structured detections."""
         if not text:
             return []
@@ -35,11 +35,18 @@ class SafetySignalDetector:
         text_lower = text.lower()
         detections = []
 
+        # 4/5-star reviews without explicit danger reports should not trigger hazard signals
+        explicit_danger = any(w in text_lower for w in ["caught fire", "hospital", "burned my", "laceration", "er doctor", "emergency room", "electric shock"])
+        if rating is not None and rating >= 4.0 and not explicit_danger:
+            return []
+
         for signal_type, phrases in SAFETY_VOCABULARY.items():
             for phrase in phrases:
                 if phrase in text_lower:
                     # Context check
                     if is_false_positive_context(text_lower, signal_type):
+                        continue
+                    if is_false_positive_context(text_lower, phrase):
                         continue
 
                     sev = SEVERITY_MAPPING.get(signal_type, 2)

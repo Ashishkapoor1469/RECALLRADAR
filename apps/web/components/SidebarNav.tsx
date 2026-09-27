@@ -92,7 +92,7 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
       ),
     },
     {
-      name: 'Ask RecallRadar',
+      name: 'Ask EarlyEcho',
       href: '/ask',
       aiBadge: 'RAG AI',
       icon: (
@@ -125,7 +125,7 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold tracking-tight text-slate-900 text-lg">RecallRadar</span>
+                <span className="font-extrabold tracking-tight text-slate-900 text-lg">EarlyEcho</span>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-200">LIVE</span>
               </div>
               <p className="text-xs font-medium text-slate-400">Safety Intelligence</p>
@@ -250,7 +250,10 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
   return (
     <>
       {/* Desktop Fixed Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 z-30 bg-white border-r border-slate-200/80 overflow-y-auto">
+      <aside
+        style={{ position: 'fixed', top: 0, bottom: 0, left: 0, height: '100vh', width: '16rem' }}
+        className="hidden md:flex flex-col z-30 bg-white border-r border-slate-200/80 overflow-y-auto"
+      >
         {sidebarContent}
       </aside>
 

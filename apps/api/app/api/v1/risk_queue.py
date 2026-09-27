@@ -111,6 +111,7 @@ def get_risk_queue(
         queue_items.sort(key=lambda x: x["lead_time_weeks"] or 0, reverse=True)
 
     total = len(queue_items)
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 1
     offset = (page - 1) * page_size
     items_page = queue_items[offset : offset + page_size]
 
@@ -118,5 +119,6 @@ def get_risk_queue(
         "items": items_page,
         "page": page,
         "page_size": page_size,
-        "total": total
+        "total": total,
+        "total_pages": total_pages
     }

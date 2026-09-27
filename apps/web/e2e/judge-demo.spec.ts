@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('RecallRadar Complete Judge Demo Flow', () => {
+test.describe('EarlyEcho Complete Judge Demo Flow', () => {
   test('should execute complete judge demo workflow cleanly', async ({ page }) => {
     // 1. Open Dashboard Overview
     await page.goto('http://localhost:3000');
@@ -23,7 +23,7 @@ test.describe('RecallRadar Complete Judge Demo Flow', () => {
     await page.waitForTimeout(2000);
 
     // 6. Verify Early Warning Alert Banner & Lead Time
-    await expect(page.locator('text=RECALLRADAR EARLY WARNING ALERT FIRED')).toBeVisible();
+    await expect(page.locator('text=EARLYECHO EARLY WARNING ALERT FIRED')).toBeVisible();
     await expect(page.locator('text=LEAD TIME')).toBeVisible();
 
     // 7. Inspect Flagged Review Evidence
@@ -39,9 +39,9 @@ test.describe('RecallRadar Complete Judge Demo Flow', () => {
     await slider.fill('50');
     await expect(page.locator('text=50 alerts / 1,000 products')).toBeVisible();
 
-    // 10. Open Ask RecallRadar RAG Chat
-    await page.click('text=Ask RecallRadar');
-    await expect(page.locator('h1')).toContainText('Ask RecallRadar');
+    // 10. Open Ask EarlyEcho AI RAG Chat
+    await page.click('text=Ask EarlyEcho AI');
+    await expect(page.locator('h1')).toContainText('Ask EarlyEcho AI');
 
     // 11. Ask evidence question
     await page.fill('input[placeholder*="Ask"]', 'Why did the Demo Smart Charger alert fire?');

@@ -1,8 +1,8 @@
-# RecallRadar — Persistent Safety Intelligence & Early Recall Warning
+# EarlyEcho — Persistent Safety Intelligence & Early Recall Warning
 
 > **"Know a product is unsafe before the recall."**
 
-RecallRadar monitors customer reviews and public safety reports, detects emerging safety-defect signals, calculates product risk over time, triggers configurable alerts, explains alerts using grounded evidence, and backtests historical products to measure how early the system would have caught a problem before an official recall.
+EarlyEcho monitors customer reviews and public safety reports, detects emerging safety-defect signals, calculates product risk over time, triggers configurable alerts, explains alerts using grounded evidence, and backtests historical products to measure how early the system would have caught a problem before an official recall.
 
 ---
 
@@ -13,7 +13,7 @@ RecallRadar monitors customer reviews and public safety reports, detects emergin
 - **Multi-Layer Safety Signal Detector**: Hybrid detector combining lexicon keyword matching, severity classification (0–4), regex phrase patterns, and contextual disambiguation.
 - **Interpretable Risk Engine**: Transparent 0–100 risk scoring with additive factor contributor breakdowns (e.g., `+31 Increasing burn reports`).
 - **NVIDIA NIM Grounded Explanations**: Grounded LLM explanations enforcing evidence citation IDs (`[R-101]`) with local deterministic fallback engine for offline execution.
-- **Ask RecallRadar (RAG)**: Conversational assistant over review and safety data with strict citation grounding and hallucination refusal guardrails.
+- **Ask EarlyEcho AI**: Conversational assistant over review and safety data with strict citation grounding, NVIDIA NIM reasoning, and direct SQL exploration.
 - **Backtest Lab & Alert Budget Simulator**: Interactive Alert Budget slider (1–100 alerts/1k products) calculating live lead times, false alarm rates, and precision/recall tradeoff curves.
 - **Data Quality & Diagnostics**: Real-time system status, database health metrics, review volume tracking, and error diagnostics.
 - **Amazon CSV Ingestion & Synthetic Data**: Native CLI tools for ingesting real-world Amazon Customer Reviews dataset (`scripts/ingest_amazon_csv.py`) alongside synthetic test cases.
@@ -30,7 +30,7 @@ RecallRadar monitors customer reviews and public safety reports, detects emergin
 ## Technical Architecture
 
 ```
-RecallRadar Monorepo
+EarlyEcho Monorepo
 ├── apps/
 │   ├── web/            # Next.js 14 (App Router), TypeScript, Tailwind CSS, Lucide Icons, Framer Motion
 │   └── api/            # Python FastAPI, SQLAlchemy 2.0, Pydantic v2, SQLite / PostgreSQL

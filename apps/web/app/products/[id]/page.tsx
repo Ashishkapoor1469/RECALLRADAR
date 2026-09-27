@@ -34,7 +34,12 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const riskScore = data?.current_risk ?? 0.0;
   const leadTime = data?.lead_time_weeks;
   const recallInfo = data?.recall;
-  const reviews = data?.reviews || [];
+  // Deduplicate reviews by text content
+  const rawReviews = data?.reviews || [];
+  const reviews = rawReviews.filter(
+    (rev: any, index: number, self: any[]) =>
+      index === self.findIndex((r: any) => (r.text || '').trim().toLowerCase() === (rev.text || '').trim().toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
