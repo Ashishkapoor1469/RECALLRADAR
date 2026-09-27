@@ -21,12 +21,21 @@ def get_system_status(db: Session = Depends(get_db)):
 
     engine_label = "PostgreSQL" if dialect_name == "postgresql" else ("SQLite" if dialect_name == "sqlite" else dialect_name.upper())
 
-    total_reviews = db.query(Review).count() if is_live else 0
-    total_products = db.query(Product).count() if is_live else 0
-    total_signals = db.query(SafetySignal).count() if is_live else 0
-    
-    last_review = db.query(Review).order_by(Review.review_date.desc()).first() if is_live else None
-    last_ingest = last_review.review_date.strftime("%Y-%m-%d %H:%M:%S") if last_review else "2024-03-07 00:00:00"
+    total_reviews = 0
+    total_products = 0
+    total_signals = 0
+    last_ingest = "2024-03-07 00:00:00"
+
+    if is_live:
+        try:
+            total_reviews = db.query(Review).count()
+            total_products = db.query(Product).count()
+            total_signals = db.query(SafetySignal).count()
+            last_review = db.query(Review).order_by(Review.review_date.desc()).first()
+            if last_review and hasattr(last_review, 'review_date') and last_review.review_date:
+                last_ingest = last_review.review_date.strftime("%Y-%m-%d %H:%M:%S")
+        except Exception as qe:
+            print(f"Error querying table stats: {qe}")
 
     return {
         "dataset_name": "Musical_instruments_reviews.csv",

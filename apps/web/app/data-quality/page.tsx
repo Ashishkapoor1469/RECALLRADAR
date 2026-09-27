@@ -54,7 +54,7 @@ export default function DataQualityPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 mb-1 font-mono">
-            {loading ? '...' : (summary.products_monitored ?? 900)} Models
+            {loading ? '...' : (summary.products_monitored !== undefined ? summary.products_monitored : '—')} Models
           </div>
           <p className="text-[11px] text-slate-400">Database Registered Models</p>
         </div>
@@ -65,7 +65,7 @@ export default function DataQualityPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 mb-1 font-mono">
-            {loading ? '...' : (summary.reviews_ingested ?? 10261)} Ingested
+            {loading ? '...' : (summary.reviews_ingested !== undefined ? summary.reviews_ingested : '—')} Ingested
           </div>
           <p className="text-[11px] text-slate-400">Normalized Review Records</p>
         </div>
@@ -76,7 +76,7 @@ export default function DataQualityPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           </div>
           <div className="text-2xl font-extrabold text-emerald-700 mb-1 font-mono">
-            {loading ? '...' : (summary.safety_reports_ingested ?? 0)} Reports
+            {loading ? '...' : (summary.safety_reports_ingested !== undefined ? summary.safety_reports_ingested : '—')} Reports
           </div>
           <p className="text-[11px] text-slate-400 font-medium">Official Regulatory Reports</p>
         </div>
@@ -87,7 +87,7 @@ export default function DataQualityPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           </div>
           <div className="text-2xl font-extrabold text-brand-700 mb-1 font-mono">
-            {loading ? '...' : (summary.signals_detected ?? 14)} Signals
+            {loading ? '...' : (summary.signals_detected !== undefined ? summary.signals_detected : '—')} Signals
           </div>
           <p className="text-[11px] text-slate-400 font-medium">Multi-Layer Defect Signals</p>
         </div>

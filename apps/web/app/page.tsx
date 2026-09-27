@@ -69,6 +69,8 @@ function OverviewPageContent() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [page, setPage] = useState<number>(pageParam);
 
+  const [error, setError] = useState<string | null>(null);
+
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [loadingSentiment, setLoadingSentiment] = useState(true);
   const [loadingAttention, setLoadingAttention] = useState(true);
@@ -94,9 +96,15 @@ function OverviewPageContent() {
       if (res.ok) {
         const data = await res.json();
         setSummary(data);
+        setError(null);
+      } else {
+        setSummary(null);
+        setError(`Backend API Error (HTTP ${res.status}): Failed to fetch live overview telemetry.`);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error fetching summary:', e);
+      setSummary(null);
+      setError(`Cannot reach backend service at ${getApiUrl('')}. Service may be starting up or database unreachable.`);
     } finally {
       setLoadingSummary(false);
     }
@@ -174,11 +182,27 @@ function OverviewPageContent() {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs text-slate-400 font-medium font-mono">Database Status:</span>
-          <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
-            Real Ingestion Active
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border whitespace-nowrap ${
+            error ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+          }`}>
+            {error ? 'Backend Offline / Error' : 'Real Ingestion Active'}
           </span>
         </div>
       </div>
+
+      {/* Backend Connection Error Banner */}
+      {error && (
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-rose-900 flex items-start gap-3 shadow-sm">
+          <span className="text-xl">⚠️</span>
+          <div className="flex-1 text-xs">
+            <div className="font-bold text-rose-800 uppercase tracking-wider mb-0.5">Backend Data Source Error</div>
+            <p className="text-rose-700 leading-relaxed">{error}</p>
+            <p className="text-rose-500 mt-1">
+              If deploying on Render, ensure <code>DATABASE_URL</code> is added in the Render Dashboard Environment tab.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Metric Cards Row */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -199,14 +223,14 @@ function OverviewPageContent() {
             </div>
             <div className="mt-4">
               <div className="text-3xl font-extrabold tracking-tight">
-                {loadingSummary ? '...' : (summary?.total_products ?? 906).toLocaleString()}
+                {loadingSummary ? '...' : summary ? summary.total_products.toLocaleString() : '—'}
               </div>
               <p className="text-xs text-brand-100 mt-1">Catalog items indexed</p>
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-brand-100">
             <span>Domain: Musical Instruments</span>
-            <span className="font-semibold text-emerald-200">100% Real DB</span>
+            <span className="font-semibold text-emerald-200">{summary ? 'Live Telemetry' : 'Offline'}</span>
           </div>
         </div>
 
@@ -226,14 +250,14 @@ function OverviewPageContent() {
             </div>
             <div className="mt-4">
               <div className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                {loadingSummary ? '...' : (summary?.total_reviews ?? 10334).toLocaleString()}
+                {loadingSummary ? '...' : summary ? summary.total_reviews.toLocaleString() : '—'}
               </div>
               <p className="text-xs text-slate-400 mt-1">Consumer feedbacks analyzed</p>
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-slate-500">Classified Signals:</span>
-            <span className="font-bold text-indigo-600">{(summary?.total_signals ?? 57).toLocaleString()}</span>
+            <span className="font-bold text-indigo-600">{summary ? summary.total_signals.toLocaleString() : '—'}</span>
           </div>
         </div>
 
@@ -253,7 +277,7 @@ function OverviewPageContent() {
             </div>
             <div className="mt-4">
               <div className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-baseline gap-2">
-                {loadingSummary ? '...' : summary?.high_risk_count ?? 14}
+                {loadingSummary ? '...' : summary ? summary.high_risk_count.toLocaleString() : '—'}
                 <span className="text-xs font-semibold text-rose-600">Items Flagged</span>
               </div>
               <p className="text-xs text-slate-400 mt-1">Requiring immediate audit</p>
@@ -262,7 +286,7 @@ function OverviewPageContent() {
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-slate-500">Top Risk Item:</span>
             <span className="font-bold text-rose-600 truncate max-w-[140px]" title={summary?.highest_risk_item}>
-              {summary?.highest_risk_item || 'B0002CZV82'}
+              {summary?.highest_risk_item || 'None'}
             </span>
           </div>
         </div>

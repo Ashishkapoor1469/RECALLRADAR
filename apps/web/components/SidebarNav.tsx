@@ -227,13 +227,13 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
             <div>
               <span className="text-slate-400 block text-[9px] font-medium uppercase">Reviews</span>
               <span className="font-extrabold text-white">
-                {systemStatus ? systemStatus.total_reviews.toLocaleString() : '10,334'}
+                {systemStatus ? systemStatus.total_reviews.toLocaleString() : '—'}
               </span>
             </div>
             <div>
               <span className="text-slate-400 block text-[9px] font-medium uppercase">Products</span>
               <span className="font-extrabold text-white">
-                {systemStatus ? systemStatus.total_products.toLocaleString() : '906'}
+                {systemStatus ? systemStatus.total_products.toLocaleString() : '—'}
               </span>
             </div>
           </div>
