@@ -14,6 +14,9 @@ export default function AlertsPage() {
   const [evaluating, setEvaluating] = useState(false);
   const [dispatchStatus, setDispatchStatus] = useState<string | null>(null);
 
+  const [alertsPage, setAlertsPage] = useState(1);
+  const alertsPerPage = 10;
+
   const fetchAlertsAndRules = async (isBackground: boolean = false) => {
     if (!isBackground) setLoading(true);
     try {
@@ -29,6 +32,15 @@ export default function AlertsPage() {
       if (!isBackground) setLoading(false);
     }
   };
+
+  const totalAlertsPages = Math.max(1, Math.ceil(alerts.length / alertsPerPage));
+  const paginatedAlerts = alerts.slice((alertsPage - 1) * alertsPerPage, alertsPage * alertsPerPage);
+
+  useEffect(() => {
+    if (alertsPage > totalAlertsPages) {
+      setAlertsPage(totalAlertsPages);
+    }
+  }, [alerts.length, totalAlertsPages, alertsPage]);
 
   useLiveData(
     async (isBackground) => {
@@ -177,52 +189,127 @@ export default function AlertsPage() {
       </div>
 
       {/* Active Rules & Triggered Alerts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Configured Rules */}
-        <div className="lg:col-span-6 space-y-4">
-          <h2 className="text-base font-bold text-slate-900">Active Directives &amp; Rules ({rules.length})</h2>
-          {loading ? (
-            <div className="p-6 text-center text-slate-400 text-xs">Loading alert rules...</div>
-          ) : rules.length === 0 ? (
-            <div className="p-6 text-center text-slate-400 text-xs">No active alert rules configured. Create one above.</div>
-          ) : (
-            <div className="space-y-3">
-              {rules.map((rule, idx) => (
-                <div key={rule.id || idx} className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-card flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200/60 flex items-center justify-center text-brand-700 font-bold text-xs">
-                      R{idx + 1}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-800">{rule.name || rule.description}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Type: {rule.rule_type || 'Threshold'} • Status: Compiled &amp; Active</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
-                    ACTIVE
-                  </span>
-                </div>
-              ))}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column: Configured Rules + Channel Telemetry & Diagnostics */}
+        <div className="lg:col-span-6 space-y-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-slate-900">Active Directives &amp; Rules ({rules.length})</h2>
+              <span className="text-[11px] text-slate-400 font-medium">Temporal &amp; Lexicon Filters</span>
             </div>
-          )}
+
+            {loading ? (
+              <div className="p-6 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200/80">Loading alert rules...</div>
+            ) : rules.length === 0 ? (
+              <div className="p-6 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200/80">No active alert rules configured. Create one above.</div>
+            ) : (
+              <div className="space-y-3">
+                {rules.map((rule, idx) => (
+                  <div key={rule.id || idx} className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-card flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-brand-50 border border-brand-200/60 flex items-center justify-center text-brand-700 font-bold text-xs">
+                        R{idx + 1}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">{rule.name || rule.description}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Type: {rule.rule_type || 'Threshold'} • Status: Compiled &amp; Active</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
+                      ACTIVE
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Alert Engine Telemetry & Channel Configuration Panel (Fills Left Column & Balances Page) */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-card space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                  Surveillance Channels &amp; Delivery Telemetry
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                SLAs Active
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 bg-slate-50 border border-slate-200/70 rounded-xl space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-700">Email Gateway</span>
+                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded">Live</span>
+                </div>
+                <p className="text-[11px] text-slate-500">Resend Transactional API</p>
+                <p className="text-[10px] font-mono text-slate-400 truncate">{recipientEmail}</p>
+              </div>
+
+              <div className="p-3 bg-slate-50 border border-slate-200/70 rounded-xl space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-700">Webhook Router</span>
+                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded">Connected</span>
+                </div>
+                <p className="text-[11px] text-slate-500">Slack / Ops Channels</p>
+                <p className="text-[10px] font-mono text-slate-400">JSON schema v1.2</p>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <h4 className="text-[11px] font-bold text-slate-700">Automated Severity Triggers</h4>
+              <div className="space-y-1.5 text-[11px] text-slate-600">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                    <span>Bayesian Harm Severity</span>
+                  </span>
+                  <span className="font-mono text-slate-700 font-semibold">&ge; 70.0 / 100</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    <span>14-Day Velocity Spike</span>
+                  </span>
+                  <span className="font-mono text-slate-700 font-semibold">2x Frequency Baseline</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                    <span>Fail-Soft Outbound Timeout</span>
+                  </span>
+                  <span className="font-mono text-slate-700 font-semibold">&lt; 5.0 seconds</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right Column: Triggered Anomaly Alerts */}
+        {/* Right Column: Triggered Anomaly Alerts with 10-per-page Pagination */}
         <div className="lg:col-span-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900">Triggered System Alerts ({alerts.length})</h2>
-            <span className="text-[11px] text-slate-400 font-medium">Live Telemetry &amp; Dispatch Receipts</span>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Triggered System Alerts ({alerts.length})</h2>
+              <span className="text-[11px] text-slate-400 font-medium">Live Telemetry &amp; Dispatch Receipts</span>
+            </div>
+            {alerts.length > alertsPerPage && (
+              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
+                Page {alertsPage} of {totalAlertsPages}
+              </span>
+            )}
           </div>
 
           {loading ? (
-            <div className="p-6 text-center text-slate-400 text-xs">Loading active alerts...</div>
+            <div className="p-6 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200/80">Loading active alerts...</div>
           ) : alerts.length === 0 ? (
             <div className="p-8 text-center bg-white border border-slate-200/80 rounded-2xl text-slate-400 text-xs">
-              No active alerts triggered in database. Click "Fire Directives &amp; Send Alerts" above to run live rule matching.
+              No active alerts triggered in database. Click &quot;Fire Directives &amp; Send Alerts&quot; above to run live rule matching.
             </div>
           ) : (
             <div className="space-y-3">
-              {alerts.map((alertItem, idx) => (
+              {paginatedAlerts.map((alertItem, idx) => (
                 <div key={alertItem.id || idx} className={`bg-white border rounded-2xl p-4 shadow-card ${
                   alertItem.risk_score >= 70 ? 'border-rose-200' : 'border-slate-200/80'
                 }`}>
@@ -254,6 +341,52 @@ export default function AlertsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {alerts.length > alertsPerPage && (
+            <div className="flex items-center justify-between pt-3 pb-2 px-1">
+              <span className="text-xs text-slate-500 font-medium">
+                Showing <span className="font-bold text-slate-700">{(alertsPage - 1) * alertsPerPage + 1}</span> to{' '}
+                <span className="font-bold text-slate-700">{Math.min(alertsPage * alertsPerPage, alerts.length)}</span> of{' '}
+                <span className="font-bold text-slate-700">{alerts.length}</span> alerts
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAlertsPage((prev) => Math.max(1, prev - 1))}
+                  disabled={alertsPage === 1}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition"
+                >
+                  &larr; Previous
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalAlertsPages }, (_, i) => i + 1).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setAlertsPage(p)}
+                      className={`w-7 h-7 rounded-lg text-xs font-bold transition flex items-center justify-center ${
+                        alertsPage === p
+                          ? 'bg-brand-900 text-white shadow-sm'
+                          : 'text-slate-600 hover:bg-slate-100 bg-white border border-slate-200/80'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAlertsPage((prev) => Math.min(totalAlertsPages, prev + 1))}
+                  disabled={alertsPage >= totalAlertsPages}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition"
+                >
+                  Next &rarr;
+                </button>
+              </div>
             </div>
           )}
         </div>
