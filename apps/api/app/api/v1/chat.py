@@ -79,22 +79,29 @@ def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
                 target_prod = p
                 break
 
-    # Similar products finder
+    # Similar products finder (deduplicated by external ID)
     similar_products = []
     if target_prod:
-        peers = db.query(Product).filter(Product.category == target_prod.category, Product.id != target_prod.id).limit(4).all()
+        peers = db.query(Product).filter(Product.category == target_prod.category, Product.id != target_prod.id).limit(10).all()
+        seen_peer_ids = set()
         for pr in peers:
+            p_id = pr.external_id or pr.id
+            if p_id in seen_peer_ids:
+                continue
+            seen_peer_ids.add(p_id)
             pr_sigs = db.query(SafetySignal).filter(SafetySignal.product_id == pr.id).all()
             pr_revs = db.query(Review).filter(Review.product_id == pr.id).count()
             pr_risk = min(len(pr_sigs) * 14.5, 92.0) if pr_sigs else 12.0
             similar_products.append({
-                "id": pr.external_id or pr.id,
+                "id": p_id,
                 "name": pr.name,
                 "brand": pr.brand or "Generic",
                 "risk_score": round(pr_risk, 1),
                 "signal_count": len(pr_sigs),
                 "review_count": pr_revs
             })
+            if len(similar_products) >= 4:
+                break
 
     # ==========================
     # MODE A: AI CHAT (NVIDIA NIM)
@@ -108,6 +115,13 @@ def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
             p_revs = db.query(Review).filter(Review.product_id == target_prod.id).order_by(Review.review_date.desc()).all()
             p_recall = db.query(Recall).filter(Recall.product_id == target_prod.id).first()
 
+            # Deduplicate signal phrases
+            unique_signals = []
+            for s in p_sigs:
+                ph = (s.phrase or "").strip()
+                if ph and ph not in unique_signals:
+                    unique_signals.append(ph)
+
             sig_count = len(p_sigs)
             max_sev = max([s.severity for s in p_sigs], default=0)
             risk_score = min(sig_count * 14.5 + max_sev * 10, 92.0) if sig_count > 0 else 12.0
@@ -119,16 +133,38 @@ def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
                 "category": target_prod.category,
                 "risk_score": round(risk_score, 1),
                 "is_recalled": bool(p_recall),
-                "signals": [s.phrase for s in p_sigs]
+                "signals": unique_signals
             }
 
-            for r in p_revs[:5]:
-                evidence_items.append({
-                    "id": r.external_id or r.id,
-                    "date": r.review_date.strftime("%Y-%m-%d"),
+            # Collect distinct review evidence, prioritizing defect/hazard reviews first
+            defect_revs = []
+            general_revs = []
+            seen_rev_keys = set()
+
+            for r in p_revs:
+                rev_id = (r.external_id or r.id or "").strip()
+                body_clean = (r.body or "").strip()
+                # Deduplication key based on ID and snippet
+                key = rev_id if rev_id else body_clean[:80]
+                if key in seen_rev_keys:
+                    continue
+                seen_rev_keys.add(key)
+
+                entry = {
+                    "id": rev_id or f"R-{len(seen_rev_keys)}",
+                    "date": r.review_date.strftime("%Y-%m-%d") if r.review_date else "Recent",
                     "rating": r.rating,
-                    "evidence_text": r.body
-                })
+                    "evidence_text": body_clean
+                }
+
+                body_lower = body_clean.lower()
+                is_defect = any(k in body_lower for k in ["fire", "flame", "burn", "smoke", "spark", "shock", "defect", "fail", "hazard", "broke", "crack", "hot", "danger", "burst"]) or (r.rating is not None and r.rating <= 2.0)
+                if is_defect:
+                    defect_revs.append(entry)
+                else:
+                    general_revs.append(entry)
+
+            evidence_items = (defect_revs + general_revs)[:5]
 
         # Genuinely call NVIDIA NIM API
         nim_answer = None
@@ -189,12 +225,25 @@ Cite specific evidence IDs [ID] wherever quoting feedback."""
                     peer_comp_text = f"\n\n**Peer Comparison:** In category *{target_prod.category}*, peer products average a risk score of {round(sum(p['risk_score'] for p in similar_products)/len(similar_products), 1)}/100 across {len(similar_products)} indexed items."
 
                 signals_str = ", ".join(product_info["signals"][:3]) if product_info["signals"] else "No active safety spikes"
+                
+                # Clean title to avoid duplicate ASIN labels
+                clean_name = product_info['name']
+                if f"({product_info['id']})" not in clean_name:
+                    clean_name = f"{clean_name} (ASIN: {product_info['id']})"
+
+                citation_lines = []
+                for e in evidence_items[:3]:
+                    clean_snip = e['evidence_text'].replace('"', "'")
+                    citation_lines.append(f"- **[{e['id']}]** ({e['date']}, {e['rating']}★): \"{clean_snip[:120]}...\"")
+                
+                citations_block = "\n".join(citation_lines) if citation_lines else "- No verified defect reviews recorded."
+
                 nim_answer = (
-                    f"### Safety Investigation: {product_info['name']} (ASIN: {product_info['id']})\n\n"
+                    f"### Safety Investigation: {clean_name}\n\n"
                     f"**Current Hazard Assessment:** Risk score is **{product_info['risk_score']}/100** with defect cluster: *{signals_str}*.\n\n"
                     f"**Evidence Breakdown:** Analysis of verified customer reports shows recurring defect patterns. "
                     f"Key verified citations include:\n"
-                    + "\n".join([f"- **[{e['id']}]** ({e['date']}, {e['rating']}★): \"{e['evidence_text'][:120]}...\"" for e in evidence_items[:3]])
+                    f"{citations_block}"
                     + peer_comp_text
                     + "\n\n**Investigator Recommendation:** Review defect cluster against warranty return logs to verify whether corrective supplier intervention is required."
                 )
@@ -205,11 +254,20 @@ Cite specific evidence IDs [ID] wherever quoting feedback."""
                     f"You can drill into any specific ASIN (e.g. B0002CZV82) or product name to evaluate its defect history, compare against peers, and inspect customer evidence citations."
                 )
 
+        # Deduplicate citations returned to frontend
+        unique_citations = []
+        seen_cite_ids = set()
+        for e in evidence_items:
+            cid = e['id']
+            if cid not in seen_cite_ids:
+                seen_cite_ids.add(cid)
+                unique_citations.append(f"[{cid}] {e['evidence_text'][:65]}...")
+
         return {
             "answer": nim_answer,
             "mode": "ai_chat",
             "table": None,
-            "citations": [f"[{e['id']}] {e['evidence_text'][:60]}..." for e in evidence_items],
+            "citations": unique_citations,
             "product_detail": product_info,
             "similar_products": similar_products
         }

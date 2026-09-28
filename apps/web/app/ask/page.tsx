@@ -32,6 +32,66 @@ interface ChatMessage {
   }>;
 }
 
+function renderInlineFormatting(str: string, isUser: boolean = false) {
+  const parts = str.split(/(\*\*.*?\*\*|\*.*?\*|\[[A-Za-z0-9_-]+\])/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className={`font-bold ${isUser ? 'text-white' : 'text-slate-900'}`}>{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith('*') && part.endsWith('*')) {
+      return (
+        <span key={i} className={`font-semibold ${isUser ? 'text-brand-100 underline' : 'text-rose-700 bg-rose-50 px-1 py-0.2 rounded border border-rose-100'}`}>
+          {part.slice(1, -1)}
+        </span>
+      );
+    }
+    if (part.startsWith('[') && part.endsWith(']')) {
+      return (
+        <span key={i} className={`inline-block px-1.5 py-0.2 rounded font-mono text-[10px] font-bold border ${isUser ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 text-slate-800 border-slate-200'}`}>
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+}
+
+function FormattedMessageText({ text, isUser = false }: { text: string; isUser?: boolean }) {
+  const lines = text.split('\n');
+  return (
+    <div className="space-y-1.5">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={idx} className="h-0.5" />;
+
+        if (trimmed.startsWith('### ')) {
+          return (
+            <h3 key={idx} className={`text-sm font-bold border-b pb-1 pt-1 ${isUser ? 'text-white border-white/20' : 'text-slate-900 border-slate-100'}`}>
+              {trimmed.replace(/^###\s+/, '')}
+            </h3>
+          );
+        }
+
+        if (trimmed.startsWith('- ')) {
+          const content = trimmed.replace(/^-\s+/, '');
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-2 text-xs">
+              <span className={`font-bold shrink-0 ${isUser ? 'text-white' : 'text-brand-600'}`}>•</span>
+              <div className={`leading-relaxed ${isUser ? 'text-white' : 'text-slate-700'}`}>{renderInlineFormatting(content, isUser)}</div>
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className={`text-xs leading-relaxed ${isUser ? 'text-white' : 'text-slate-700'}`}>
+            {renderInlineFormatting(trimmed, isUser)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AskEarlyEchoPage() {
   const [query, setQuery] = useState('');
   const [mode, setMode] = useState<'rag' | 'ai_chat'>('rag');
@@ -203,7 +263,7 @@ export default function AskEarlyEchoPage() {
                   : 'bg-white border border-slate-200/80 text-slate-800'
               }`}
             >
-              <div className="whitespace-pre-line">{m.text}</div>
+              <FormattedMessageText text={m.text} isUser={m.sender === 'user'} />
 
               {/* Product Drill-Down Detail Card */}
               {m.productDetail && (
@@ -283,8 +343,8 @@ export default function AskEarlyEchoPage() {
                 <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px]">
                   <span className="text-slate-400 font-semibold block mb-1">Evidence Citations:</span>
                   <div className="space-y-1">
-                    {m.citations.map((c, cIdx) => (
-                      <div key={cIdx} className="text-slate-600 bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                    {Array.from(new Set(m.citations)).map((c, cIdx) => (
+                      <div key={cIdx} className="text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/70 font-mono text-[11px] leading-relaxed">
                         {c}
                       </div>
                     ))}

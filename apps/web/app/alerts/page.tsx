@@ -15,7 +15,7 @@ export default function AlertsPage() {
   const [dispatchStatus, setDispatchStatus] = useState<string | null>(null);
 
   const [alertsPage, setAlertsPage] = useState(1);
-  const alertsPerPage = 10;
+  const alertsPerPage = 5;
 
   const fetchAlertsAndRules = async (isBackground: boolean = false) => {
     if (!isBackground) setLoading(true);

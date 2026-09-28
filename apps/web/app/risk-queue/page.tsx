@@ -136,8 +136,11 @@ function RiskQueueContent() {
           >
             <option value="">All Categories</option>
             <option value="Musical Instruments">Musical Instruments</option>
-            <option value="Cables & Accessories">Cables &amp; Accessories</option>
-            <option value="Amplifiers & Effects">Amplifiers &amp; Effects</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Home Appliances">Home Appliances</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Toys">Toys</option>
+            <option value="Baby Products">Baby Products</option>
           </select>
         </div>
 
