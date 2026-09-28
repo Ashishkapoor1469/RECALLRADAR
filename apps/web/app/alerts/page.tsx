@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getApiUrl } from '../../lib/api';
+import { useLiveData } from '../../lib/useLiveData';
 
 export default function AlertsPage() {
   const [ruleInput, setRuleInput] = useState('');
@@ -13,25 +14,28 @@ export default function AlertsPage() {
   const [evaluating, setEvaluating] = useState(false);
   const [dispatchStatus, setDispatchStatus] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchAlertsAndRules();
-  }, []);
-
-  const fetchAlertsAndRules = async () => {
-    setLoading(true);
+  const fetchAlertsAndRules = async (isBackground: boolean = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const [alertsRes, rulesRes] = await Promise.all([
         fetch(getApiUrl('/api/v1/alerts/')).then((r) => r.json()).catch(() => []),
-        fetch(getApiUrl('/api/v1/alerts/rules')).then((r) => r.json()).catch(() => [])
+        fetch(getApiUrl('/api/v1/alerts/rules')).then((r) => r.json()).catch(() => []),
       ]);
       setAlerts(Array.isArray(alertsRes) ? alertsRes : []);
       setRules(Array.isArray(rulesRes) ? rulesRes : []);
     } catch (e) {
       console.error('Error fetching alerts:', e);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
+
+  useLiveData(
+    async (isBackground) => {
+      fetchAlertsAndRules(isBackground);
+    },
+    ['alerts']
+  );
 
   const handleAddRule = async (e: React.FormEvent) => {
     e.preventDefault();

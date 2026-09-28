@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import DemoControls from './DemoControls';
 import SidebarNav from './SidebarNav';
+import { LiveDataProvider } from '../lib/useLiveData';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,7 +30,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }, []);
 
   return (
-    <div className="flex min-h-screen w-full relative">
+    <LiveDataProvider>
+      <div className="flex min-h-screen w-full relative">
       {isNavigating && (
         <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gradient-to-r from-brand-600 via-emerald-400 to-brand-600 animate-pulse"></div>
       )}
@@ -98,5 +100,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         </div>
       </main>
     </div>
+    </LiveDataProvider>
   );
 }

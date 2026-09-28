@@ -2,28 +2,32 @@
 
 import { useState, useEffect } from 'react';
 import { getApiUrl } from '../../lib/api';
+import { useLiveData } from '../../lib/useLiveData';
 
 export default function DataQualityPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDataQualityMetrics();
-  }, []);
-
-  const fetchDataQualityMetrics = async () => {
-    setLoading(true);
+  const fetchDataQualityMetrics = async (isBackground: boolean = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const res = await fetch(getApiUrl('/api/v1/data-quality/'));
       const result = await res.json();
       setData(result);
     } catch (e) {
       console.error('Error fetching data quality metrics:', e);
-      setData(null);
+      if (!isBackground) setData(null);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
+
+  useLiveData(
+    async (isBackground) => {
+      fetchDataQualityMetrics(isBackground);
+    },
+    ['reviews', 'products', 'signals']
+  );
 
   const summary = data?.ingestion_summary || {};
   const provenance = data?.data_provenance || {};

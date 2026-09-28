@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { API_BASE_URL, getApiUrl } from '../lib/api';
+import { useLiveData } from '../lib/useLiveData';
 
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,10 +25,13 @@ export default function SidebarNav({ isOpenMobile = false, onCloseMobile }: Side
   } | null>(null);
   const [highRiskCount, setHighRiskCount] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchSystemStatus();
-    fetchRiskStats();
-  }, []);
+  useLiveData(
+    async () => {
+      fetchSystemStatus();
+      fetchRiskStats();
+    },
+    ['products', 'signals', 'reviews']
+  );
 
   const fetchSystemStatus = async () => {
     try {

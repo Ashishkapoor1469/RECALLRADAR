@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { getApiUrl } from '../lib/api';
+import { useLiveDataContext } from '../lib/useLiveData';
 
 export default function DemoControls() {
   const [scanning, setScanning] = useState(false);
+  const [timeAgo, setTimeAgo] = useState('just now');
   const [dbStatus, setDbStatus] = useState<{
     engine: string;
     isConnected: boolean;
@@ -12,6 +14,10 @@ export default function DemoControls() {
     engine: 'PostgreSQL',
     isConnected: true,
   });
+
+  const liveData = useLiveDataContext();
+  const status = liveData?.status || 'live';
+  const lastUpdated = liveData?.lastUpdated;
 
   useEffect(() => {
     fetch(getApiUrl('/api/v1/system/status'))
@@ -29,39 +35,71 @@ export default function DemoControls() {
       });
   }, []);
 
-  const handleRescan = () => {
+  // Update "just now" / seconds ago timestamp display every second
+  useEffect(() => {
+    if (!lastUpdated) return;
+
+    const updateLabel = () => {
+      const diffSec = Math.floor((Date.now() - new Date(lastUpdated).getTime()) / 1000);
+      if (diffSec < 5) {
+        setTimeAgo('just now');
+      } else if (diffSec < 60) {
+        setTimeAgo(`${diffSec}s ago`);
+      } else {
+        const diffMin = Math.floor(diffSec / 60);
+        setTimeAgo(`${diffMin}m ago`);
+      }
+    };
+
+    updateLabel();
+    const interval = setInterval(updateLabel, 1000);
+    return () => clearInterval(interval);
+  }, [lastUpdated]);
+
+  const handleRescan = async () => {
     setScanning(true);
-    setTimeout(() => {
-      window.location.reload();
-    }, 400);
+    try {
+      if (liveData?.triggerManualRescan) {
+        await liveData.triggerManualRescan();
+      }
+    } finally {
+      setTimeout(() => {
+        setScanning(false);
+      }, 500);
+    }
   };
 
   return (
     <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
-      <span
-        className={`hidden sm:inline-flex px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold rounded-xl border items-center gap-1.5 whitespace-nowrap ${
-          dbStatus.isConnected
-            ? dbStatus.engine.includes('Postgre')
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-              : 'bg-indigo-50 text-indigo-800 border-indigo-200'
-            : 'bg-rose-50 text-rose-800 border-rose-200'
-        }`}
-      >
-        <span
-          className={`w-2 h-2 rounded-full shrink-0 ${
-            dbStatus.isConnected
-              ? dbStatus.engine.includes('Postgre')
-                ? 'bg-emerald-500'
-                : 'bg-indigo-500'
-              : 'bg-rose-500'
-          }`}
-        ></span>
-        {dbStatus.isConnected ? `${dbStatus.engine} (Live)` : 'DB Disconnected'}
-      </span>
+      {/* Live / Status Indicator Pill */}
+      {status === 'reconnecting' ? (
+        <span className="inline-flex px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold rounded-xl border items-center gap-1.5 whitespace-nowrap bg-amber-50 text-amber-800 border-amber-200">
+          <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0"></span>
+          <span>Reconnecting…</span>
+        </span>
+      ) : status === 'paused' ? (
+        <span className="hidden sm:inline-flex px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-semibold rounded-xl border items-center gap-1.5 whitespace-nowrap bg-slate-100 text-slate-600 border-slate-200">
+          <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
+          <span>Paused</span>
+        </span>
+      ) : (
+        <span className="inline-flex px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold rounded-xl border items-center gap-1.5 whitespace-nowrap bg-emerald-50 text-emerald-800 border-emerald-200">
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 motion-reduce:hidden"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>Live</span>
+          <span className="text-[10px] text-emerald-600/80 font-medium hidden md:inline">
+            • Updated {timeAgo}
+          </span>
+        </span>
+      )}
+
+      {/* Manual Rescan Telemetry Button */}
       <button
         onClick={handleRescan}
         disabled={scanning}
-        className="px-2.5 sm:px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl border border-slate-200 transition flex items-center gap-1.5 whitespace-nowrap disabled:opacity-60"
+        className="px-2.5 sm:px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl border border-slate-200 transition flex items-center gap-1.5 whitespace-nowrap disabled:opacity-60 cursor-pointer"
         title="Rescan Telemetry"
       >
         <svg
@@ -83,3 +121,4 @@ export default function DemoControls() {
     </div>
   );
 }
+

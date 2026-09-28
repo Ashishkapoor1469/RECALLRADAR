@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { getApiUrl } from '../../lib/api';
+import { useLiveData } from '../../lib/useLiveData';
 
 interface QueueItem {
   id: string;
@@ -36,17 +37,14 @@ function RiskQueueContent() {
   const [category, setCategory] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('highest_risk');
 
-  useEffect(() => {
-    fetchQueueData(page, minRisk, category, sortBy);
-  }, [page, minRisk, category, sortBy]);
-
   const fetchQueueData = async (
     pageNum: number,
     riskVal: number,
     catVal: string,
-    sortVal: string
+    sortVal: string,
+    isBackground: boolean = false
   ) => {
-    setLoading(true);
+    if (!isBackground) setLoading(true);
     try {
       let url = getApiUrl(`/api/v1/risk-queue/?page=${pageNum}&page_size=10&sort_by=${sortVal}&min_risk=${riskVal}`);
       if (catVal) url += `&category=${encodeURIComponent(catVal)}`;
@@ -60,11 +58,20 @@ function RiskQueueContent() {
       }
     } catch (e) {
       console.error('Error fetching risk queue data:', e);
-      setItems([]);
+      if (!isBackground) setItems([]);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
+
+  // Live polling updates while preserving user filters, page, and inspection state
+  useLiveData(
+    async (isBackground) => {
+      fetchQueueData(page, minRisk, category, sortBy, isBackground);
+    },
+    ['products', 'signals', 'reviews'],
+    [page, minRisk, category, sortBy]
+  );
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {

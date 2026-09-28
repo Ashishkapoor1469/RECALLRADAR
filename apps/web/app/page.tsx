@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiUrl } from '../lib/api';
+import { useLiveData } from '../lib/useLiveData';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -75,43 +76,37 @@ function OverviewPageContent() {
   const [loadingSentiment, setLoadingSentiment] = useState(true);
   const [loadingAttention, setLoadingAttention] = useState(true);
   const [loadingQueue, setLoadingQueue] = useState(true);
+  const [recentlyUpdated, setRecentlyUpdated] = useState(false);
 
-  useEffect(() => {
-    fetchSummary();
-    fetchAttention();
-  }, []);
-
-  useEffect(() => {
-    fetchSentiment(sentimentMode);
-  }, [sentimentMode]);
-
-  useEffect(() => {
-    fetchQueue(page);
-  }, [page]);
-
-  const fetchSummary = async () => {
-    setLoadingSummary(true);
+  const fetchSummary = async (isBackground: boolean = false) => {
+    if (!isBackground) setLoadingSummary(true);
     try {
       const res = await fetch(getApiUrl('/api/v1/overview/summary'));
       if (res.ok) {
         const data = await res.json();
+        if (isBackground) {
+          setRecentlyUpdated(true);
+          setTimeout(() => setRecentlyUpdated(false), 2000);
+        }
         setSummary(data);
         setError(null);
-      } else {
+      } else if (!isBackground) {
         setSummary(null);
         setError(`Backend API Error (HTTP ${res.status}): Failed to fetch live overview telemetry.`);
       }
     } catch (e: any) {
       console.error('Error fetching summary:', e);
-      setSummary(null);
-      setError(`Cannot reach backend service at ${getApiUrl('')}. Service may be starting up or database unreachable.`);
+      if (!isBackground) {
+        setSummary(null);
+        setError(`Cannot reach backend service at ${getApiUrl('')}. Service may be starting up or database unreachable.`);
+      }
     } finally {
-      setLoadingSummary(false);
+      if (!isBackground) setLoadingSummary(false);
     }
   };
 
-  const fetchSentiment = async (mode: 'positive' | 'negative') => {
-    setLoadingSentiment(true);
+  const fetchSentiment = async (mode: 'positive' | 'negative', isBackground: boolean = false) => {
+    if (!isBackground) setLoadingSentiment(true);
     try {
       const res = await fetch(getApiUrl(`/api/v1/overview/sentiment-performance?mode=${mode}`));
       if (res.ok) {
@@ -121,12 +116,12 @@ function OverviewPageContent() {
     } catch (e) {
       console.error('Error fetching sentiment performance:', e);
     } finally {
-      setLoadingSentiment(false);
+      if (!isBackground) setLoadingSentiment(false);
     }
   };
 
-  const fetchAttention = async () => {
-    setLoadingAttention(true);
+  const fetchAttention = async (isBackground: boolean = false) => {
+    if (!isBackground) setLoadingAttention(true);
     try {
       const res = await fetch(getApiUrl('/api/v1/products/attention'));
       if (res.ok) {
@@ -136,12 +131,12 @@ function OverviewPageContent() {
     } catch (e) {
       console.error('Error fetching attention products:', e);
     } finally {
-      setLoadingAttention(false);
+      if (!isBackground) setLoadingAttention(false);
     }
   };
 
-  const fetchQueue = async (pageNum: number) => {
-    setLoadingQueue(true);
+  const fetchQueue = async (pageNum: number, isBackground: boolean = false) => {
+    if (!isBackground) setLoadingQueue(true);
     try {
       const res = await fetch(getApiUrl(`/api/v1/risk-queue/?page=${pageNum}&page_size=10`));
       if (res.ok) {
@@ -153,9 +148,23 @@ function OverviewPageContent() {
     } catch (e) {
       console.error('Error fetching queue:', e);
     } finally {
-      setLoadingQueue(false);
+      if (!isBackground) setLoadingQueue(false);
     }
   };
+
+  // Live polling synchronization: updates overview telemetry whenever database changes
+  useLiveData(
+    async (isBackground) => {
+      await Promise.all([
+        fetchSummary(isBackground),
+        fetchAttention(isBackground),
+        fetchSentiment(sentimentMode, isBackground),
+        fetchQueue(page, isBackground),
+      ]);
+    },
+    ['reviews', 'products', 'signals', 'alerts'],
+    [page, sentimentMode]
+  );
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -249,7 +258,9 @@ function OverviewPageContent() {
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Database</span>
             </div>
             <div className="mt-4">
-              <div className="text-3xl font-extrabold text-slate-900 tracking-tight">
+              <div className={`text-3xl font-extrabold tracking-tight transition-colors duration-1000 ${
+                recentlyUpdated ? 'text-indigo-600 animate-pulse motion-reduce:animate-none' : 'text-slate-900'
+              }`}>
                 {loadingSummary ? '...' : summary ? summary.total_reviews.toLocaleString() : '—'}
               </div>
               <p className="text-xs text-slate-400 mt-1">Consumer feedbacks analyzed</p>
@@ -276,7 +287,9 @@ function OverviewPageContent() {
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">Score &ge; 50</span>
             </div>
             <div className="mt-4">
-              <div className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-baseline gap-2">
+              <div className={`text-3xl font-extrabold tracking-tight flex items-baseline gap-2 transition-colors duration-1000 ${
+                recentlyUpdated ? 'text-rose-600 animate-pulse motion-reduce:animate-none' : 'text-slate-900'
+              }`}>
                 {loadingSummary ? '...' : summary ? summary.high_risk_count.toLocaleString() : '—'}
                 <span className="text-xs font-semibold text-rose-600">Items Flagged</span>
               </div>

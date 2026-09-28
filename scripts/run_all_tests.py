@@ -17,6 +17,12 @@ from apps.api.tests.test_api_endpoints import test_health_endpoint, test_root_en
 from apps.api.tests.test_spike_detection import test_real_spike_fires, test_flat_trend_does_not_fire, test_low_volume_noise_does_not_fire
 from apps.api.tests.test_webhook_alert import test_webhook_alert_unset_skips_silently, test_webhook_alert_failure_fails_soft
 from apps.api.tests.test_audit_log import test_audit_log_direct_entry, test_audit_log_on_rule_creation, test_audit_log_on_csv_export
+from apps.api.tests.test_changes_endpoint import (
+    test_system_changes_endpoint_schema,
+    test_system_changes_cache_performance,
+    test_system_changes_updates_token_on_new_data,
+    test_system_changes_db_unreachable_returns_503,
+)
 
 def main():
     tests = [
@@ -42,7 +48,11 @@ def main():
         ("Webhook Alert Channel: Network Failure Fails Soft", test_webhook_alert_failure_fails_soft),
         ("Audit Log: Direct Entry Creation", test_audit_log_direct_entry),
         ("Audit Log: Append on Rule Creation", test_audit_log_on_rule_creation),
-        ("Audit Log: Append on CSV Data Export", test_audit_log_on_csv_export)
+        ("Audit Log: Append on CSV Data Export", test_audit_log_on_csv_export),
+        ("System Changes: Schema & Tokens", test_system_changes_endpoint_schema),
+        ("System Changes: In-Memory Cache Performance", test_system_changes_cache_performance),
+        ("System Changes: Reactivity on Data Insert", test_system_changes_updates_token_on_new_data),
+        ("System Changes: Fail-Safe 503 on DB Error", test_system_changes_db_unreachable_returns_503)
     ]
 
 

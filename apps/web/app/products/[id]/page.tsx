@@ -3,28 +3,33 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getApiUrl } from '../../../lib/api';
+import { useLiveData } from '../../../lib/useLiveData';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchProductDetails();
-  }, [params.id]);
-
-  const fetchProductDetails = async () => {
-    setLoading(true);
+  const fetchProductDetails = async (isBackground: boolean = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const res = await fetch(getApiUrl(`/api/v1/products/${params.id}`));
       const result = await res.json();
       setData(result);
     } catch (err) {
       console.error('Error fetching product detail:', err);
-      setData(null);
+      if (!isBackground) setData(null);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
+
+  useLiveData(
+    async (isBackground) => {
+      fetchProductDetails(isBackground);
+    },
+    ['products', 'reviews', 'signals', 'alerts'],
+    [params.id]
+  );
 
   if (loading) {
     return <div className="p-12 text-center text-slate-400 font-medium">Loading product safety investigation details...</div>;
