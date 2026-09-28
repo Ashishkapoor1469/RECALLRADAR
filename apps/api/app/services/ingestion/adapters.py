@@ -132,6 +132,57 @@ class AmazonReviewsAdapter(BaseAdapter):
             "source": self.source_name
         }
 
+
+class SupportTicketsAdapter(BaseAdapter):
+    """Adapter for customer support tickets CSV and feed data."""
+
+    def __init__(self):
+        super().__init__(source_name="support_ticket")
+
+    def fetch(self, limit: int = 50, **kwargs) -> List[Dict[str, Any]]:
+        return kwargs.get("sample_records", [])[:limit]
+
+    def validate(self, raw_record: Dict[str, Any]) -> bool:
+        has_id = any(k in raw_record for k in ["ticket_id", "id", "ticket_no"])
+        has_text = any(k in raw_record for k in ["text", "body", "description", "issue"])
+        return has_id and has_text
+
+    def normalize(self, raw_record: Dict[str, Any]) -> Dict[str, Any]:
+        external_id = str(raw_record.get("ticket_id", raw_record.get("id", f"TCK-{random_hash()}")))
+        body = raw_record.get("text", raw_record.get("body", raw_record.get("description", raw_record.get("issue", ""))))
+        title = raw_record.get("title", raw_record.get("subject", "Customer Support Ticket"))
+        product_name = raw_record.get("product", raw_record.get("product_name", "General Support Equipment"))
+        product_ext = str(raw_record.get("product_id", raw_record.get("asin", raw_record.get("sku", product_name))))
+        rating_val = raw_record.get("rating", raw_record.get("priority", 2.0))
+        try:
+            rating = float(rating_val)
+        except (ValueError, TypeError):
+            rating = 2.0
+
+        date_val = raw_record.get("created_at", raw_record.get("timestamp", raw_record.get("date", None)))
+        if isinstance(date_val, (int, float)):
+            review_date = datetime.fromtimestamp(date_val / 1000.0 if date_val > 1e10 else date_val)
+        elif isinstance(date_val, str):
+            try:
+                review_date = datetime.strptime(date_val[:10], "%Y-%m-%d")
+            except ValueError:
+                review_date = datetime.utcnow()
+        else:
+            review_date = datetime.utcnow()
+
+        return {
+            "external_id": external_id,
+            "product_external_id": product_ext,
+            "product_name": product_name,
+            "rating": rating,
+            "title": title,
+            "body": body,
+            "review_date": review_date,
+            "verified": raw_record.get("verified", True),
+            "source": self.source_name
+        }
+
 def random_hash():
     import uuid
     return str(uuid.uuid4())[:8]
+

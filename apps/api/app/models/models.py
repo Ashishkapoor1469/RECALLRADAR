@@ -243,3 +243,14 @@ class ReviewSignal(Base):
 
     review = relationship("Review", back_populates="review_signals")
 
+
+class AuditLog(Base):
+    __tablename__ = "audit_log"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    action = Column(String, nullable=False, index=True) # e.g. "RULE_CREATE", "ALERT_DISPATCH", "DATA_EXPORT"
+    target = Column(String, nullable=True, index=True)  # e.g. rule_id, alert_id, filename
+    detail = Column(JSON, nullable=True)                # e.g. parameters, metadata, actor info
+
+

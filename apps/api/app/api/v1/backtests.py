@@ -183,6 +183,19 @@ def export_backtest_data(
     db: Session = Depends(get_db)
 ):
     cases, stats = calculate_db_backtest_cases(db)
+
+    # Append-only audit logging for data export
+    try:
+        from app.services.audit import log_audit
+        log_audit(
+            db=db,
+            action="DATA_EXPORT",
+            target="earlyecho_backtest_cases.csv" if format == "csv" else "earlyecho_backtest_cases.json",
+            detail={"format": format, "total_records": len(cases)}
+        )
+    except Exception as e:
+        print(f"Audit log warning on export: {e}")
+
     if format == "json":
         return {
             "exported_at": datetime.utcnow().isoformat(),
@@ -201,3 +214,4 @@ def export_backtest_data(
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=earlyecho_backtest_cases.csv"}
     )
+

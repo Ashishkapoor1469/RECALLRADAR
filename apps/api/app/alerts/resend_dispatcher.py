@@ -12,6 +12,59 @@ class ResendAlertDispatcher:
         self.api_key = settings.RESEND_API_KEY
         self.default_recipient = settings.ALERT_RECIPIENT_EMAIL or "safety-officer@ashishzu.in"
         self.sender = getattr(settings, "RESEND_FROM_EMAIL", "EarlyEcho Safety Alerts <alerts@ashishzu.in>")
+        self.webhook_url = getattr(settings, "ALERT_WEBHOOK_URL", None) or os.environ.get("ALERT_WEBHOOK_URL")
+
+    def dispatch_webhook(
+        self,
+        product: Dict[str, Any],
+        alert: Dict[str, Any],
+        explanation: str
+    ) -> Optional[Dict[str, Any]]:
+        """Optional Slack-compatible webhook dispatcher with 5s timeout. Fails soft without breaking email."""
+        webhook_target = self.webhook_url or getattr(settings, "ALERT_WEBHOOK_URL", None) or os.environ.get("ALERT_WEBHOOK_URL")
+        if not webhook_target:
+            return None
+        try:
+            prod_name = product.get("name") or "Monitored Product"
+            risk_score = alert.get("risk_score", 75.0)
+            confidence = alert.get("confidence", "HIGH")
+            alert_type = alert.get("alert_type", "CRITICAL_DEFECT_SPIKE")
+
+            slack_payload = {
+                "text": f"🚨 *EarlyEcho Safety Alert*: {confidence} Hazard Flag on *{prod_name}*",
+                "blocks": [
+                    {
+                        "type": "header",
+                        "text": {"type": "plain_text", "text": f"🚨 EarlyEcho Safety Alert: {prod_name}", "emoji": True}
+                    },
+                    {
+                        "type": "section",
+                        "fields": [
+                            {"type": "mrkdwn", "text": f"*Risk Score:*\n{risk_score}/100"},
+                            {"type": "mrkdwn", "text": f"*Confidence:*\n{confidence}"},
+                            {"type": "mrkdwn", "text": f"*Product ID:*\n`{product.get('id')}`"},
+                            {"type": "mrkdwn", "text": f"*Alert Type:*\n{alert_type}"}
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "text": {"type": "mrkdwn", "text": f"*Details:*\n>{explanation}"}
+                    }
+                ]
+            }
+            with httpx.Client(timeout=5.0) as client:
+                w_resp = client.post(webhook_target, json=slack_payload)
+                return {
+                    "status": "delivered" if w_resp.status_code in [200, 201, 204] else "failed",
+                    "status_code": w_resp.status_code,
+                    "channel": "webhook_slack"
+                }
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "channel": "webhook_slack"
+            }
 
     def dispatch_alert(
         self,
@@ -26,6 +79,9 @@ class ResendAlertDispatcher:
         confidence = alert.get("confidence", "HIGH")
         alert_type = alert.get("alert_type", "CRITICAL_DEFECT_SPIKE")
         explanation = alert.get("explanation", "Hazard detected in customer feedback.")
+
+        # Optional Slack / Webhook notification (isolated, timeout 5s)
+        webhook_receipt = self.dispatch_webhook(product, alert, explanation)
 
         evidence_html = ""
         if evidence_items:
@@ -93,7 +149,7 @@ class ResendAlertDispatcher:
                         print(f"Resend API ({sender_candidate}) -> Status {resp.status_code}: {resp.text}")
                         if resp.status_code in [200, 201]:
                             data = resp.json()
-                            return {
+                            receipt = {
                                 "status": "delivered",
                                 "resend_id": data.get("id"),
                                 "recipient": target_email,
@@ -101,12 +157,15 @@ class ResendAlertDispatcher:
                                 "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                                 "channel": "email_resend_live"
                             }
+                            if webhook_receipt:
+                                receipt["webhook_receipt"] = webhook_receipt
+                            return receipt
             except Exception as e:
                 print(f"Resend API dispatch error: {e}. Falling back to simulated delivery record.")
 
         # Deterministic delivery receipt (for offline/sandbox or simulated runs)
         receipt_id = f"resend_msg_{uuid.uuid4().hex[:12]}"
-        return {
+        receipt = {
             "status": "dispatched",
             "resend_id": receipt_id,
             "recipient": target_email,
@@ -114,3 +173,7 @@ class ResendAlertDispatcher:
             "channel": "email_resend_sandbox",
             "note": "Alert notification dispatched via Resend transactional engine"
         }
+        if webhook_receipt:
+            receipt["webhook_receipt"] = webhook_receipt
+        return receipt
+

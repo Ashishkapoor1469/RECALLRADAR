@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     RESEND_API_KEY: Optional[str] = None
     RESEND_FROM_EMAIL: str = "EarlyEcho Safety Alerts <alerts@ashishzu.in>"
     ALERT_RECIPIENT_EMAIL: str = "safety-officer@ashishzu.in"
+    ALERT_WEBHOOK_URL: Optional[str] = None
+
 
     @property
     def sync_database_url(self) -> str:

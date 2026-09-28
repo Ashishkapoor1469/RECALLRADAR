@@ -165,6 +165,20 @@ def evaluate_and_dispatch_alerts(
         })
 
     db.commit()
+
+    # Append-only audit logging for alert dispatch
+    try:
+        from app.services.audit import log_audit
+        for fa in fired_alerts:
+            log_audit(
+                db=db,
+                action="ALERT_DISPATCH",
+                target=str(fa["alert_id"]),
+                detail={"product_name": fa["product_name"], "recipient": fa["recipient"], "risk_score": fa["risk_score"]}
+            )
+    except Exception as e:
+        print(f"Audit log warning on alert dispatch: {e}")
+
     return {
         "status": "success",
         "fired_count": len(fired_alerts),
@@ -222,8 +236,22 @@ def create_alert_rule(payload: RuleCreateSchema, db: Session = Depends(get_db)):
     db.add(rule)
     db.commit()
     db.refresh(rule)
+
+    # Append-only audit logging for rule creation
+    try:
+        from app.services.audit import log_audit
+        log_audit(
+            db=db,
+            action="RULE_CREATE",
+            target=str(rule.id),
+            detail={"name": rule.name, "raw_text": payload.text, "rule_type": rule.rule_type}
+        )
+    except Exception as e:
+        print(f"Audit log warning on rule create: {e}")
+
     return {
         "rule": rule,
         "parsed_spec": parsed
     }
+
 
