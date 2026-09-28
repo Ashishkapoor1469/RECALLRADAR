@@ -1,426 +1,438 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1120" width="1600" height="1120" style="background:#090D16; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, Helvetica, Arial, sans-serif;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1140" width="1600" height="1140" style="background:#111113; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, Helvetica, Arial, sans-serif;">
   <defs>
-    <!-- Background Grid Pattern -->
+    <!-- Background Grid Pattern matching reference chalkboard style -->
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#161F30" stroke-width="1" stroke-opacity="0.4"/>
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#222226" stroke-width="1" stroke-opacity="0.6"/>
     </pattern>
 
-    <!-- Drop Shadows & Glows -->
-    <filter id="cardGlow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.6"/>
-    </filter>
-    <filter id="accentGlowNext" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38BDF8" flood-opacity="0.3"/>
-    </filter>
-    <filter id="accentGlowFastAPI" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#009688" flood-opacity="0.3"/>
-    </filter>
-    <filter id="accentGlowDB" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#336791" flood-opacity="0.3"/>
+    <!-- Subtle Depth Shadows -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.7"/>
     </filter>
 
-    <!-- Arrow Markers -->
+    <!-- Arrow Markers in Clean Chalk White & Accent Colors -->
     <marker id="arrowWhite" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#E2E8F0"/>
-    </marker>
-    <marker id="arrowCyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38BDF8"/>
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#FFFFFF"/>
     </marker>
     <marker id="arrowGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#34D399"/>
     </marker>
     <marker id="arrowPurple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#A78BFA"/>
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#C084FC"/>
     </marker>
     <marker id="arrowAmber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#FBBF24"/>
     </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#60A5FA"/>
+    </marker>
   </defs>
 
-  <!-- Background Canvas -->
-  <rect width="1600" height="1120" fill="#090D16"/>
-  <rect width="1600" height="1120" fill="url(#grid)"/>
+  <!-- Dark Background Canvas (#111113 matte chalkboard as per reference) -->
+  <rect width="1600" height="1140" fill="#111113"/>
+  <rect width="1600" height="1140" fill="url(#grid)"/>
 
-  <!-- ==================== HEADER BAR ==================== -->
-  <g transform="translate(60, 24)">
-    <rect width="1480" height="64" rx="14" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" filter="url(#cardGlow)"/>
-    <circle cx="36" cy="32" r="14" fill="#0284C7"/>
-    <text x="36" y="37" fill="#FFFFFF" font-size="14" font-weight="900" text-anchor="middle">EE</text>
-    <text x="64" y="32" fill="#F8FAFC" font-size="17" font-weight="800" letter-spacing="0.5">EARLYECHO (RECALLRADAR) — SYSTEM ARCHITECTURE &amp; DATAFLOW</text>
-    <text x="64" y="49" fill="#94A3B8" font-size="11">Production Defect Intelligence Platform • Bayesian Risk Surveillance • pgvector RAG Citations • Sub-50ms Live Polling</text>
+  <!-- ==================== TOP TITLE BAR ==================== -->
+  <g transform="translate(60, 22)">
+    <rect width="1480" height="64" rx="12" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" filter="url(#cardShadow)"/>
+    <circle cx="36" cy="32" r="14" fill="#27272A" stroke="#FFFFFF" stroke-width="1.5"/>
+    <text x="36" y="37" fill="#FFFFFF" font-size="13" font-weight="900" text-anchor="middle">EE</text>
+    <text x="64" y="32" fill="#FFFFFF" font-size="16" font-weight="800" letter-spacing="0.5">EARLYECHO (RECALLRADAR) - SYSTEM ARCHITECTURE &amp; DATAFLOW</text>
+    <text x="64" y="49" fill="#A1A1AA" font-size="11">Production Defect Intelligence Platform • Bayesian Hazard Scoring • pgvector RAG Citations • Sub-50ms Change Token Engine</text>
     
-    <rect x="1310" y="18" width="145" height="28" rx="8" fill="#1E293B" stroke="#334155"/>
-    <circle cx="1326" cy="32" r="4" fill="#10B981"/>
-    <text x="1338" y="36" fill="#F1F5F9" font-size="11" font-weight="600">Production Live</text>
+    <rect x="1310" y="18" width="145" height="28" rx="7" fill="#27272A" stroke="#52525B" stroke-width="1"/>
+    <circle cx="1326" cy="32" r="4" fill="#22C55E"/>
+    <text x="1338" y="36" fill="#F4F4F5" font-size="11" font-weight="600">Production Live</text>
   </g>
 
   <!-- ==================== MAIN ARCHITECTURE NODES ==================== -->
 
-  <!-- 1. CLIENT NODE (Next.js + Web2) -->
-  <g transform="translate(60, 110)">
-    <rect width="250" height="470" rx="16" fill="#0E1626" stroke="#38BDF8" stroke-width="2" filter="url(#cardGlow)"/>
+  <!-- 1. CLIENT NODE (Next.js Dashboard + Review Portal) -->
+  <g transform="translate(60, 105)">
+    <rect width="250" height="475" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" filter="url(#cardShadow)"/>
     
-    <!-- Next.js Official Logo Icon -->
-    <g transform="translate(24, 22)">
-      <circle cx="16" cy="16" r="16" fill="#000000" stroke="#38BDF8" stroke-width="1.5"/>
+    <!-- Next.js Official Brand Badge -->
+    <g transform="translate(20, 20)">
+      <circle cx="16" cy="16" r="16" fill="#000000" stroke="#FFFFFF" stroke-width="1.5"/>
       <path d="M 23 24 L 12 10 L 10 10 L 10 22 L 12 22 L 12 13.5 L 21.2 25 Z" fill="#FFFFFF"/>
       <rect x="20" y="10" width="2" height="7" fill="#FFFFFF"/>
     </g>
-    <text x="64" y="36" fill="#FFFFFF" font-size="15" font-weight="800">Client Frontend</text>
-    <text x="64" y="52" fill="#38BDF8" font-size="10" font-weight="700">NEXT.JS 14 APP ROUTER</text>
+    <text x="62" y="34" fill="#FFFFFF" font-size="15" font-weight="800">client</text>
+    <text x="62" y="50" fill="#A1A1AA" font-size="10" font-weight="700">NEXT.JS 14 APP ROUTER</text>
 
-    <!-- Sub-app: apps/web -->
-    <rect x="16" y="70" width="218" height="180" rx="10" fill="#152033" stroke="#1E293B" stroke-width="1.5"/>
-    <rect x="26" y="80" width="80" height="20" rx="5" fill="#0284C7"/>
-    <text x="66" y="94" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">apps/web</text>
-    <text x="26" y="118" fill="#F8FAFC" font-size="12" font-weight="700">Safety Dashboard</text>
-    <text x="26" y="136" fill="#94A3B8" font-size="10">• Executive Overview (/)</text>
-    <text x="26" y="152" fill="#94A3B8" font-size="10">• Risk Queue (/risk-queue)</text>
-    <text x="26" y="168" fill="#94A3B8" font-size="10">• Product Detail (/products/[id])</text>
-    <text x="26" y="184" fill="#94A3B8" font-size="10">• Live Change-Token Sync</text>
-    <text x="26" y="200" fill="#94A3B8" font-size="10">• 0-Flicker Polling Hook</text>
-    <text x="26" y="216" fill="#94A3B8" font-size="10">• Rescan Telemetry Action</text>
-    <text x="26" y="234" fill="#34D399" font-size="9" font-weight="700">React 18 • Framer • Recharts</text>
+    <!-- Sub-app: apps/web (Safety Dashboard) -->
+    <rect x="16" y="68" width="218" height="182" rx="9" fill="#202024" stroke="#3F3F46" stroke-width="1.2"/>
+    <rect x="26" y="78" width="80" height="20" rx="5" fill="#27272A" stroke="#52525B" stroke-width="1"/>
+    <text x="66" y="92" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">apps/web</text>
+    <text x="26" y="116" fill="#FFFFFF" font-size="12" font-weight="700">Safety Dashboard</text>
+    <text x="26" y="134" fill="#D4D4D8" font-size="10">• Executive Overview (/)</text>
+    <text x="26" y="150" fill="#D4D4D8" font-size="10">• Prioritized Risk Queue (/risk-queue)</text>
+    <text x="26" y="166" fill="#D4D4D8" font-size="10">• Product Detail Deep-Dive (/products/[id])</text>
+    <text x="26" y="182" fill="#D4D4D8" font-size="10">• Alerts &amp; Directives (/alerts)</text>
+    <text x="26" y="198" fill="#D4D4D8" font-size="10">• Live Change-Token Hook (useLiveData)</text>
+    <text x="26" y="214" fill="#D4D4D8" font-size="10">• Zero-Flicker Polling (4.5s Interval)</text>
+    <text x="26" y="232" fill="#34D399" font-size="9" font-weight="700">React 18 • Framer Motion • Recharts</text>
 
-    <!-- Sub-app: apps/web2 -->
-    <rect x="16" y="260" width="218" height="135" rx="10" fill="#152033" stroke="#1E293B" stroke-width="1.5"/>
-    <rect x="26" y="270" width="80" height="20" rx="5" fill="#E11D48"/>
+    <!-- Sub-app: apps/web2 (Review Portal) -->
+    <rect x="16" y="260" width="218" height="138" rx="9" fill="#202024" stroke="#3F3F46" stroke-width="1.2"/>
+    <rect x="26" y="270" width="80" height="20" rx="5" fill="#27272A" stroke="#52525B" stroke-width="1"/>
     <text x="66" y="284" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">apps/web2</text>
-    <text x="26" y="308" fill="#F8FAFC" font-size="12" font-weight="700">Review Portal</text>
-    <text x="26" y="326" fill="#94A3B8" font-size="10">• Direct Customer Submission</text>
-    <text x="26" y="342" fill="#94A3B8" font-size="10">• Instant Defect Induction</text>
-    <text x="26" y="358" fill="#94A3B8" font-size="10">• Fire, Shock &amp; Praise Presets</text>
-    <text x="26" y="374" fill="#94A3B8" font-size="10">• Live Feed Ticker (~3.5s)</text>
+    <text x="26" y="308" fill="#FFFFFF" font-size="12" font-weight="700">Customer Review Portal</text>
+    <text x="26" y="326" fill="#D4D4D8" font-size="10">• Live Review Submission UI</text>
+    <text x="26" y="342" fill="#D4D4D8" font-size="10">• Instant Defect Ingestion</text>
+    <text x="26" y="358" fill="#D4D4D8" font-size="10">• Burn, Shock &amp; Praise Presets</text>
+    <text x="26" y="374" fill="#D4D4D8" font-size="10">• Live Feedback Ticker (~3.5s)</text>
 
-    <!-- Client Badges -->
-    <rect x="16" y="408" width="218" height="46" rx="8" fill="#101929" stroke="#1E293B"/>
-    <text x="26" y="426" fill="#64748B" font-size="9" font-weight="700">DEPLOYMENT TARGET</text>
-    <text x="26" y="442" fill="#F8FAFC" font-size="11" font-weight="600">Vercel Edge Network (SSL/CDN)</text>
+    <!-- Client Deployment Info -->
+    <rect x="16" y="408" width="218" height="52" rx="8" fill="#141416" stroke="#3F3F46" stroke-width="1"/>
+    <text x="26" y="426" fill="#71717A" font-size="9" font-weight="700">DEPLOYMENT TARGET</text>
+    <text x="26" y="444" fill="#FFFFFF" font-size="11" font-weight="600">Vercel Edge Network (Global CDN / SSL)</text>
   </g>
 
-  <!-- 2. API GATEWAY NODE (Middle column) -->
-  <g transform="translate(360, 110)">
-    <rect width="150" height="470" rx="16" fill="#0E1626" stroke="#94A3B8" stroke-width="2" stroke-dasharray="6,4" filter="url(#cardGlow)"/>
-    <text x="75" y="40" fill="#F8FAFC" font-size="14" font-weight="800" text-anchor="middle">API Gateway</text>
-    <text x="75" y="58" fill="#94A3B8" font-size="10" font-weight="600" text-anchor="middle">Cloud Reverse Proxy</text>
+  <!-- 2. API GATEWAY NODE (Middle-Left Column) -->
+  <g transform="translate(355, 105)">
+    <rect width="145" height="475" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" stroke-dasharray="6,4" filter="url(#cardShadow)"/>
+    <text x="72" y="38" fill="#FFFFFF" font-size="14" font-weight="800" text-anchor="middle">api gateway</text>
+    <text x="72" y="54" fill="#A1A1AA" font-size="9" font-weight="600" text-anchor="middle">eg. routing, ratelimiting</text>
+    <text x="72" y="66" fill="#A1A1AA" font-size="9" font-weight="600" text-anchor="middle">load balance</text>
 
-    <g transform="translate(15, 80)">
-      <rect width="120" height="60" rx="8" fill="#152033" stroke="#334155"/>
-      <text x="60" y="24" fill="#38BDF8" font-size="11" font-weight="700" text-anchor="middle">Route Proxy</text>
-      <text x="60" y="42" fill="#94A3B8" font-size="9" text-anchor="middle">/api/v1/* mapping</text>
+    <g transform="translate(14, 82)">
+      <rect width="117" height="62" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <text x="58" y="24" fill="#FFFFFF" font-size="11" font-weight="700" text-anchor="middle">Route Proxy</text>
+      <text x="58" y="42" fill="#D4D4D8" font-size="9" text-anchor="middle">/api/v1/* mapping</text>
+      <text x="58" y="54" fill="#A1A1AA" font-size="8" text-anchor="middle">REST &amp; Webhooks</text>
     </g>
 
-    <g transform="translate(15, 155)">
-      <rect width="120" height="60" rx="8" fill="#152033" stroke="#334155"/>
-      <text x="60" y="24" fill="#A78BFA" font-size="11" font-weight="700" text-anchor="middle">CORS &amp; Headers</text>
-      <text x="60" y="42" fill="#94A3B8" font-size="9" text-anchor="middle">ngrok &amp; origin bypass</text>
+    <g transform="translate(14, 158)">
+      <rect width="117" height="62" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <text x="58" y="24" fill="#FFFFFF" font-size="11" font-weight="700" text-anchor="middle">CORS &amp; SSL</text>
+      <text x="58" y="42" fill="#D4D4D8" font-size="9" text-anchor="middle">Origin validation</text>
+      <text x="58" y="54" fill="#A1A1AA" font-size="8" text-anchor="middle">TLS termination</text>
     </g>
 
-    <g transform="translate(15, 230)">
-      <rect width="120" height="60" rx="8" fill="#152033" stroke="#334155"/>
-      <text x="60" y="24" fill="#34D399" font-size="11" font-weight="700" text-anchor="middle">Load Balance</text>
-      <text x="60" y="42" fill="#94A3B8" font-size="9" text-anchor="middle">Render HTTP worker</text>
+    <g transform="translate(14, 234)">
+      <rect width="117" height="62" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <text x="58" y="24" fill="#FFFFFF" font-size="11" font-weight="700" text-anchor="middle">Rate Limiting</text>
+      <text x="58" y="42" fill="#D4D4D8" font-size="9" text-anchor="middle">Traffic governance</text>
+      <text x="58" y="54" fill="#A1A1AA" font-size="8" text-anchor="middle">DDoS protection</text>
     </g>
 
-    <g transform="translate(15, 305)">
-      <rect width="120" height="60" rx="8" fill="#152033" stroke="#334155"/>
-      <text x="60" y="24" fill="#F59E0B" font-size="11" font-weight="700" text-anchor="middle">Change Token</text>
-      <text x="60" y="42" fill="#94A3B8" font-size="9" text-anchor="middle">Sub-50ms token pass</text>
+    <g transform="translate(14, 310)">
+      <rect width="117" height="62" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <text x="58" y="24" fill="#FFFFFF" font-size="11" font-weight="700" text-anchor="middle">Change Token</text>
+      <text x="58" y="42" fill="#D4D4D8" font-size="9" text-anchor="middle">Sub-50ms pass</text>
+      <text x="58" y="54" fill="#34D399" font-size="8" font-weight="700" text-anchor="middle">&lt;1ms cached hit</text>
     </g>
 
-    <rect x="15" y="380" width="120" height="74" rx="8" fill="#152033" stroke="#334155"/>
-    <text x="60" y="402" fill="#CBD5E1" font-size="9" font-weight="700" text-anchor="middle">RENDER CLOUD</text>
-    <text x="60" y="418" fill="#94A3B8" font-size="9" text-anchor="middle">Auto-Deploy Git</text>
-    <text x="60" y="434" fill="#94A3B8" font-size="9" text-anchor="middle">TLS Termination</text>
+    <rect x="14" y="386" width="117" height="74" rx="8" fill="#141416" stroke="#3F3F46" stroke-width="1"/>
+    <text x="58" y="408" fill="#71717A" font-size="8.5" font-weight="700" text-anchor="middle">DEPLOYED ON</text>
+    <text x="58" y="424" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle">Render Cloud</text>
+    <text x="58" y="440" fill="#A1A1AA" font-size="8.5" text-anchor="middle">Uvicorn ASGI</text>
   </g>
 
   <!-- 3. CENTER: FASTAPI SURVEILLANCE ENGINE -->
-  <g transform="translate(560, 240)">
-    <rect width="240" height="210" rx="16" fill="#0E1626" stroke="#009688" stroke-width="2.5" filter="url(#accentGlowFastAPI)"/>
+  <g transform="translate(545, 235)">
+    <rect width="250" height="215" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="2" filter="url(#cardShadow)"/>
     
-    <!-- FastAPI Icon -->
+    <!-- FastAPI Icon & Title -->
     <g transform="translate(20, 18)">
-      <circle cx="16" cy="16" r="16" fill="#009688"/>
+      <circle cx="16" cy="16" r="16" fill="#059669" stroke="#FFFFFF" stroke-width="1.2"/>
       <path d="M 17 6 L 11 17 L 16 17 L 15 26 L 22 14 L 17 14 Z" fill="#FFFFFF"/>
     </g>
-    <text x="60" y="32" fill="#FFFFFF" font-size="16" font-weight="800">FastAPI Core</text>
-    <text x="60" y="48" fill="#2DD4BF" font-size="10" font-weight="700">PYTHON 3.11 • ASYNC ASGI</text>
+    <text x="60" y="32" fill="#FFFFFF" font-size="16" font-weight="800">fastapi</text>
+    <text x="60" y="48" fill="#34D399" font-size="10" font-weight="700">PYTHON 3.11 • ASYNC ASGI</text>
 
     <!-- Services list inside FastAPI -->
     <g transform="translate(16, 62)">
-      <rect width="208" height="132" rx="8" fill="#13232C" stroke="#1E3A45"/>
-      <text x="12" y="20" fill="#E2E8F0" font-size="10" font-weight="700">• Surveillance REST Endpoints</text>
-      <text x="12" y="38" fill="#E2E8F0" font-size="10" font-weight="700">• Live /system/changes (&lt;50ms)</text>
-      <text x="12" y="56" fill="#E2E8F0" font-size="10" font-weight="700">• Review Normalizer &amp; Ingest</text>
-      <text x="12" y="74" fill="#E2E8F0" font-size="10" font-weight="700">• Bayesian Risk Computation</text>
-      <text x="12" y="92" fill="#E2E8F0" font-size="10" font-weight="700">• Resend &amp; Slack Alert Dispatch</text>
-      <text x="12" y="110" fill="#E2E8F0" font-size="10" font-weight="700">• System Audit Logging</text>
+      <rect width="218" height="138" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1.2"/>
+      <text x="12" y="20" fill="#F4F4F5" font-size="10" font-weight="700">• Surveillance REST API Endpoints</text>
+      <text x="12" y="38" fill="#F4F4F5" font-size="10" font-weight="700">• Live /system/changes (&lt;50ms)</text>
+      <text x="12" y="56" fill="#F4F4F5" font-size="10" font-weight="700">• Review Normalizer &amp; Ingest Logic</text>
+      <text x="12" y="74" fill="#F4F4F5" font-size="10" font-weight="700">• Bayesian Risk Computation Orchestrator</text>
+      <text x="12" y="92" fill="#F4F4F5" font-size="10" font-weight="700">• Resend Email &amp; Slack Webhook Dispatch</text>
+      <text x="12" y="110" fill="#F4F4F5" font-size="10" font-weight="700">• In-Memory Change Cache (2.0s TTL)</text>
+      <text x="12" y="128" fill="#34D399" font-size="9" font-weight="700">• Append-Only Audit Logging Ledger</text>
     </g>
   </g>
 
   <!-- 4. TOP CENTER: ML MODEL FOR PRODUCT EVIDENCE -->
-  <g transform="translate(560, 100)">
-    <rect width="240" height="110" rx="14" fill="#0E1626" stroke="#A78BFA" stroke-width="2" filter="url(#cardGlow)"/>
-    <rect x="16" y="14" width="70" height="20" rx="5" fill="#7C3AED"/>
-    <text x="51" y="28" fill="#FFFFFF" font-size="9" font-weight="800" text-anchor="middle">ML ENGINE</text>
-    <text x="96" y="28" fill="#FFFFFF" font-size="12" font-weight="800">Product Evidence</text>
+  <g transform="translate(545, 95)">
+    <rect width="250" height="115" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" filter="url(#cardShadow)"/>
+    <rect x="16" y="14" width="75" height="20" rx="5" fill="#7C3AED" stroke="#C084FC" stroke-width="1"/>
+    <text x="53" y="28" fill="#FFFFFF" font-size="9" font-weight="800" text-anchor="middle">ML MODEL</text>
+    <text x="100" y="28" fill="#FFFFFF" font-size="12" font-weight="800">product evidence</text>
 
-    <text x="16" y="54" fill="#E2E8F0" font-size="10">• Multi-Layer Regex &amp; Lexicon Matcher</text>
-    <text x="16" y="70" fill="#E2E8F0" font-size="10">• Bayesian Harm Score (0–100 Scale)</text>
-    <text x="16" y="86" fill="#E2E8F0" font-size="10">• 14-Day Defect Spike Frequency Detector</text>
-    <text x="16" y="100" fill="#A78BFA" font-size="9" font-weight="600">Zero Temporal Leakage Isolation</text>
+    <text x="16" y="54" fill="#D4D4D8" font-size="10">• Lexicon Safety Classifier &amp; Regex Engine</text>
+    <text x="16" y="70" fill="#D4D4D8" font-size="10">• Bayesian Defect Severity Scorer (0-100)</text>
+    <text x="16" y="86" fill="#D4D4D8" font-size="10">• 14-Day Defect Velocity Spike Detector</text>
+    <text x="16" y="102" fill="#C084FC" font-size="9" font-weight="600">Strict Zero Temporal Leakage Chronology</text>
   </g>
 
   <!-- 5. TOP RIGHT: RAG ENGINE (NVIDIA NIM) -->
-  <g transform="translate(850, 100)">
-    <rect width="220" height="110" rx="14" fill="#0E1626" stroke="#10B981" stroke-width="2" filter="url(#cardGlow)"/>
-    <rect x="16" y="14" width="60" height="20" rx="5" fill="#059669"/>
-    <text x="46" y="28" fill="#FFFFFF" font-size="10" font-weight="800" text-anchor="middle">RAG</text>
-    <text x="86" y="28" fill="#FFFFFF" font-size="12" font-weight="800">Ask EarlyEcho</text>
+  <g transform="translate(835, 95)">
+    <rect width="230" height="115" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" filter="url(#cardShadow)"/>
+    <rect x="16" y="14" width="55" height="20" rx="5" fill="#059669" stroke="#34D399" stroke-width="1"/>
+    <text x="43" y="28" fill="#FFFFFF" font-size="10" font-weight="800" text-anchor="middle">RAG</text>
+    <text x="80" y="28" fill="#FFFFFF" font-size="12" font-weight="800">searching similarities</text>
 
-    <text x="16" y="54" fill="#E2E8F0" font-size="10">• NVIDIA NIM LLM Integration</text>
-    <text x="16" y="70" fill="#E2E8F0" font-size="10">• Similarity Vector Review Retrieval</text>
-    <text x="16" y="86" fill="#E2E8F0" font-size="10">• Strict Grounded Review ID Citations</text>
-    <text x="16" y="100" fill="#34D399" font-size="9" font-weight="600">Hallucination Refusal Guardrail</text>
+    <text x="16" y="54" fill="#D4D4D8" font-size="10">• NVIDIA NIM LLM Integration</text>
+    <text x="16" y="70" fill="#D4D4D8" font-size="10">• pgvector Cosine Similarity Search</text>
+    <text x="16" y="86" fill="#D4D4D8" font-size="10">• Mandatory Review ID Citations [R-EXT-*]</text>
+    <text x="16" y="102" fill="#34D399" font-size="9" font-weight="600">Strict Hallucination Refusal Guardrail</text>
   </g>
 
-  <!-- 6. RIGHT CENTER: DATABASE POSTGRESQL + PGVECTOR -->
-  <g transform="translate(1140, 150)">
-    <rect width="250" height="280" rx="18" fill="#0E1626" stroke="#336791" stroke-width="2.5" filter="url(#accentGlowDB)"/>
+  <!-- 6. RIGHT: DATABASE POSTGRESQL (PGVECTOR) -->
+  <g transform="translate(1120, 135)">
+    <rect width="270" height="315" rx="18" fill="#18181C" stroke="#FFFFFF" stroke-width="2" filter="url(#cardShadow)"/>
     
-    <!-- PostgreSQL Elephant Icon -->
+    <!-- PostgreSQL Elephant Icon & Title -->
     <g transform="translate(20, 16)">
-      <circle cx="16" cy="16" r="16" fill="#336791"/>
+      <circle cx="16" cy="16" r="16" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.2"/>
       <path d="M 12 11 C 12 8, 20 8, 20 11 C 21 14, 21 18, 19 22 C 17 25, 14 24, 13 22 C 12 20, 11 16, 12 11 Z" fill="#FFFFFF"/>
-      <circle cx="15" cy="13" r="1.5" fill="#336791"/>
+      <circle cx="15" cy="13" r="1.5" fill="#2563EB"/>
     </g>
-    <text x="60" y="32" fill="#FFFFFF" font-size="15" font-weight="800">PostgreSQL</text>
-    <text x="60" y="47" fill="#60A5FA" font-size="10" font-weight="700">PGVECTOR • SUPABASE</text>
+    <text x="60" y="32" fill="#FFFFFF" font-size="15" font-weight="800">Database</text>
+    <text x="60" y="47" fill="#60A5FA" font-size="10" font-weight="700">POSTGRES SQL (PG VECTOR)</text>
 
-    <g transform="translate(16, 62)">
-      <rect width="218" height="200" rx="10" fill="#131F33" stroke="#1E293B"/>
-      <text x="12" y="22" fill="#F8FAFC" font-size="11" font-weight="700">Database Tables &amp; Vectors</text>
+    <g transform="translate(16, 60)">
+      <rect width="238" height="235" rx="10" fill="#202024" stroke="#3F3F46" stroke-width="1.2"/>
+      <text x="12" y="22" fill="#FFFFFF" font-size="11" font-weight="700">Supabase Cloud PostgreSQL 15</text>
       
-      <text x="12" y="46" fill="#CBD5E1" font-size="10">• <tspan fill="#38BDF8" font-weight="700">products</tspan> (187 catalog models)</text>
-      <text x="12" y="66" fill="#CBD5E1" font-size="10">• <tspan fill="#38BDF8" font-weight="700">reviews</tspan> (4,000+ records, 384d)</text>
-      <text x="12" y="86" fill="#CBD5E1" font-size="10">• <tspan fill="#38BDF8" font-weight="700">safety_signals</tspan> (burn, fire, shock)</text>
-      <text x="12" y="106" fill="#CBD5E1" font-size="10">• <tspan fill="#38BDF8" font-weight="700">product_risk_snapshots</tspan></text>
-      <text x="12" y="126" fill="#CBD5E1" font-size="10">• <tspan fill="#38BDF8" font-weight="700">alerts &amp; alert_rules</tspan></text>
-      <text x="12" y="146" fill="#CBD5E1" font-size="10">• <tspan fill="#38BDF8" font-weight="700">audit_log</tspan> (governance ledger)</text>
+      <text x="12" y="46" fill="#E4E4E7" font-size="10">• <tspan fill="#FFFFFF" font-weight="700">products</tspan> (187 catalog models)</text>
+      <text x="12" y="66" fill="#E4E4E7" font-size="10">• <tspan fill="#FFFFFF" font-weight="700">reviews</tspan> (4,062 items, 384d vectors)</text>
+      <text x="12" y="86" fill="#E4E4E7" font-size="10">• <tspan fill="#FFFFFF" font-weight="700">safety_signals</tspan> (extracted hazard tags)</text>
+      <text x="12" y="106" fill="#E4E4E7" font-size="10">• <tspan fill="#FFFFFF" font-weight="700">product_risk_snapshots</tspan> (history)</text>
+      <text x="12" y="126" fill="#E4E4E7" font-size="10">• <tspan fill="#FFFFFF" font-weight="700">alerts &amp; alert_rules</tspan> (active policies)</text>
+      <text x="12" y="146" fill="#E4E4E7" font-size="10">• <tspan fill="#FFFFFF" font-weight="700">audit_log</tspan> (append-only ledger)</text>
 
-      <rect x="12" y="162" width="194" height="26" rx="6" fill="#0A1424" stroke="#0284C7"/>
-      <text x="109" y="179" fill="#38BDF8" font-size="9" font-weight="700" text-anchor="middle">Cosine Similarity Index (IVFFlat)</text>
+      <rect x="12" y="164" width="214" height="26" rx="6" fill="#141416" stroke="#52525B" stroke-width="1"/>
+      <text x="119" y="181" fill="#60A5FA" font-size="9" font-weight="700" text-anchor="middle">Cosine Similarity Index (IVFFlat)</text>
+
+      <text x="12" y="214" fill="#A1A1AA" font-size="9.5">Indexed aggregation for /system/changes</text>
+      <text x="12" y="228" fill="#34D399" font-size="9" font-weight="600">Sub-10ms DB query performance</text>
     </g>
   </g>
 
-  <!-- 7. MIDDLE RIGHT: REDIS CACHE (5 MIN) -->
-  <g transform="translate(850, 275)">
-    <rect width="220" height="110" rx="14" fill="#0E1626" stroke="#EF4444" stroke-width="2" filter="url(#cardGlow)"/>
+  <!-- 7. MIDDLE RIGHT: REDIS (5 MIN) / CACHE LAYER -->
+  <g transform="translate(835, 275)">
+    <rect width="230" height="110" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" filter="url(#cardShadow)"/>
     
-    <!-- Redis Icon -->
+    <!-- Redis Icon & Title -->
     <g transform="translate(18, 14)">
-      <rect width="20" height="20" rx="4" fill="#DC2626"/>
+      <rect width="20" height="20" rx="4" fill="#DC2626" stroke="#FFFFFF" stroke-width="1"/>
       <path d="M 6 14 L 14 14 L 10 7 Z" fill="#FFFFFF"/>
     </g>
-    <text x="46" y="28" fill="#FFFFFF" font-size="13" font-weight="800">Redis (5min)</text>
-    <text x="140" y="28" fill="#F87171" font-size="10" font-weight="700">UPSTASH</text>
+    <text x="46" y="28" fill="#FFFFFF" font-size="13" font-weight="800">redis</text>
+    <text x="86" y="28" fill="#F87171" font-size="10" font-weight="700">5MIN</text>
 
-    <text x="18" y="54" fill="#E2E8F0" font-size="10">• Cache Expensive Query Operations</text>
-    <text x="18" y="70" fill="#E2E8F0" font-size="10">• 5-Minute TTL for Aggregate Overview</text>
-    <text x="18" y="86" fill="#E2E8F0" font-size="10">• Celery Async Task Broker Queue</text>
-    <text x="18" y="100" fill="#F87171" font-size="9" font-weight="600">Rate Limiting &amp; Session Store</text>
+    <text x="18" y="54" fill="#D4D4D8" font-size="10">• In-Memory Sub-50ms Change Cache</text>
+    <text x="18" y="70" fill="#D4D4D8" font-size="10">• 5-Minute TTL for Overview Aggregates</text>
+    <text x="18" y="86" fill="#D4D4D8" font-size="10">• Celery Async Task Broker Queue</text>
+    <text x="18" y="100" fill="#F87171" font-size="9" font-weight="600">Fail-soft in-process fallback when offline</text>
   </g>
 
-  <!-- 8. BOTTOM CENTER: ORGANIZATION DATA SOURCES -->
-  <g transform="translate(540, 485)">
-    <rect width="280" height="125" rx="14" fill="#0E1626" stroke="#F59E0B" stroke-width="2" filter="url(#cardGlow)"/>
-    <text x="140" y="28" fill="#FFFFFF" font-size="13" font-weight="800" text-anchor="middle">Organization DB &amp; Feeds</text>
-    <text x="140" y="44" fill="#FBBF24" font-size="10" font-weight="700" text-anchor="middle">MULTI-SOURCE INGESTION</text>
+  <!-- 8. BOTTOM CENTER: ORGANIZATION DB -->
+  <g transform="translate(525, 480)">
+    <rect width="290" height="110" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" filter="url(#cardShadow)"/>
+    <text x="145" y="26" fill="#FFFFFF" font-size="13" font-weight="800" text-anchor="middle">ORGANIZATION DB</text>
+    <text x="145" y="42" fill="#FBBF24" font-size="9.5" font-weight="700" text-anchor="middle">ADAPTERS &amp; MULTI-SOURCE INGESTION</text>
 
-    <g transform="translate(14, 54)">
-      <rect width="78" height="56" rx="6" fill="#1B2636" stroke="#334155"/>
-      <text x="39" y="20" fill="#CBD5E1" font-size="9" font-weight="700" text-anchor="middle">Amazon CSV</text>
-      <text x="39" y="34" fill="#94A3B8" font-size="8" text-anchor="middle">Musical Inst</text>
-      <text x="39" y="46" fill="#FBBF24" font-size="8" text-anchor="middle">4,000+ Revs</text>
+    <g transform="translate(14, 52)">
+      <rect width="82" height="46" rx="6" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <text x="41" y="18" fill="#FFFFFF" font-size="8.5" font-weight="700" text-anchor="middle">Amazon CSV</text>
+      <text x="41" y="32" fill="#A1A1AA" font-size="8" text-anchor="middle">Musical Inst</text>
+      <text x="41" y="42" fill="#FBBF24" font-size="8" text-anchor="middle">4,000+ Revs</text>
     </g>
 
-    <g transform="translate(101, 54)">
-      <rect width="78" height="56" rx="6" fill="#1B2636" stroke="#334155"/>
-      <text x="39" y="20" fill="#CBD5E1" font-size="9" font-weight="700" text-anchor="middle">CPSC Recall</text>
-      <text x="39" y="34" fill="#94A3B8" font-size="8" text-anchor="middle">SaferProducts</text>
-      <text x="39" y="46" fill="#34D399" font-size="8" text-anchor="middle">Official Gov</text>
+    <g transform="translate(104, 52)">
+      <rect width="82" height="46" rx="6" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <text x="41" y="18" fill="#FFFFFF" font-size="8.5" font-weight="700" text-anchor="middle">CPSC Recall</text>
+      <text x="41" y="32" fill="#A1A1AA" font-size="8" text-anchor="middle">Gov Database</text>
+      <text x="41" y="42" fill="#34D399" font-size="8" text-anchor="middle">19 Recalls</text>
     </g>
 
-    <g transform="translate(188, 54)">
-      <rect width="78" height="56" rx="6" fill="#1B2636" stroke="#334155"/>
-      <text x="39" y="20" fill="#CBD5E1" font-size="9" font-weight="700" text-anchor="middle">Tickets</text>
-      <text x="39" y="34" fill="#94A3B8" font-size="8" text-anchor="middle">Support CSV</text>
-      <text x="39" y="46" fill="#38BDF8" font-size="8" text-anchor="middle">Adapter CLI</text>
+    <g transform="translate(194, 52)">
+      <rect width="82" height="46" rx="6" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <text x="41" y="18" fill="#FFFFFF" font-size="8.5" font-weight="700" text-anchor="middle">Tickets CSV</text>
+      <text x="41" y="32" fill="#A1A1AA" font-size="8" text-anchor="middle">Support Adapter</text>
+      <text x="41" y="42" fill="#60A5FA" font-size="8" text-anchor="middle">Dedup CLI</text>
     </g>
   </g>
 
   <!-- ==================== FLOW CONNECTORS & ARROWS ==================== -->
 
   <!-- Client <-> API Gateway -->
-  <line x1="310" y1="280" x2="360" y2="280" stroke="#E2E8F0" stroke-width="2" marker-end="url(#arrowWhite)" marker-start="url(#arrowWhite)"/>
-  <rect x="314" y="260" width="42" height="16" rx="4" fill="#090D16"/>
-  <text x="335" y="272" fill="#94A3B8" font-size="8" text-anchor="middle">HTTPS</text>
+  <line x1="310" y1="280" x2="355" y2="280" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)" marker-start="url(#arrowWhite)"/>
+  <rect x="312" y="260" width="41" height="15" rx="4" fill="#111113" stroke="#52525B" stroke-width="1"/>
+  <text x="332" y="271" fill="#FFFFFF" font-size="8" text-anchor="middle">HTTPS</text>
 
   <!-- API Gateway <-> FastAPI -->
-  <line x1="510" y1="320" x2="560" y2="320" stroke="#E2E8F0" stroke-width="2" marker-end="url(#arrowWhite)" marker-start="url(#arrowWhite)"/>
-  <rect x="514" y="302" width="42" height="16" rx="4" fill="#090D16"/>
-  <text x="535" y="314" fill="#94A3B8" font-size="8" text-anchor="middle">PROXY</text>
+  <line x1="500" y1="320" x2="545" y2="320" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)" marker-start="url(#arrowWhite)"/>
+  <rect x="502" y="302" width="41" height="15" rx="4" fill="#111113" stroke="#52525B" stroke-width="1"/>
+  <text x="522" y="313" fill="#FFFFFF" font-size="8" text-anchor="middle">PROXY</text>
 
-  <!-- FastAPI <-> ML Model -->
-  <line x1="680" y1="240" x2="680" y2="210" stroke="#A78BFA" stroke-width="2" marker-end="url(#arrowPurple)" marker-start="url(#arrowPurple)"/>
-  <rect x="635" y="218" width="90" height="14" rx="4" fill="#090D16"/>
-  <text x="680" y="229" fill="#A78BFA" font-size="8" font-weight="700" text-anchor="middle">DEFECT SCORING</text>
+  <!-- FastAPI <-> ML Model (Defect Scoring) -->
+  <line x1="670" y1="235" x2="670" y2="210" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)" marker-start="url(#arrowWhite)"/>
+  <rect x="625" y="214" width="90" height="15" rx="4" fill="#111113" stroke="#52525B" stroke-width="1"/>
+  <text x="670" y="225" fill="#FFFFFF" font-size="8" font-weight="700" text-anchor="middle">DEFECT SCORING</text>
 
   <!-- FastAPI -> RAG -->
-  <path d="M 800 270 L 960 270 L 960 210" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
-  <rect x="840" y="258" width="80" height="16" rx="4" fill="#090D16"/>
-  <text x="880" y="270" fill="#34D399" font-size="8" font-weight="700" text-anchor="middle">QUERY INTENT</text>
+  <path d="M 795 270 L 950 270 L 950 210" fill="none" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)"/>
+  <rect x="835" y="258" width="80" height="16" rx="4" fill="#111113" stroke="#52525B" stroke-width="1"/>
+  <text x="875" y="270" fill="#FFFFFF" font-size="8" font-weight="700" text-anchor="middle">QUERY INTENT</text>
 
-  <!-- RAG -> Database (Searching similarities in reviews) -->
-  <path d="M 1070 150 L 1110 150 L 1110 180 L 1140 180" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
-  <rect x="1060" y="130" width="130" height="16" rx="4" fill="#090D16"/>
-  <text x="1125" y="142" fill="#34D399" font-size="8" font-weight="700" text-anchor="middle">searching similarities in reviews</text>
+  <!-- RAG -> Database (searching similarities in reviews) -->
+  <path d="M 1065 150 L 1095 150 L 1095 180 L 1120 180" fill="none" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)"/>
+  <rect x="1035" y="130" width="165" height="16" rx="4" fill="#111113" stroke="#52525B" stroke-width="1"/>
+  <text x="1117" y="142" fill="#FFFFFF" font-size="8.5" font-weight="700" text-anchor="middle">- seraching similarities in reviews -</text>
 
-  <!-- FastAPI -> Redis (Save expensive operation) -->
-  <path d="M 800 350 L 850 350" fill="none" stroke="#F87171" stroke-width="2" marker-end="url(#arrowWhite)"/>
-  <rect x="785" y="365" width="115" height="16" rx="4" fill="#090D16"/>
-  <text x="842" y="377" fill="#F87171" font-size="8" font-weight="700" text-anchor="middle">save expensive operation</text>
+  <!-- FastAPI -> Redis (save expensive operation) -->
+  <path d="M 795 340 L 835 340" fill="none" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)"/>
+  <rect x="760" y="356" width="140" height="16" rx="4" fill="#111113" stroke="#52525B" stroke-width="1"/>
+  <text x="830" y="368" fill="#FFFFFF" font-size="8.5" font-weight="700" text-anchor="middle">save expensive operation</text>
 
   <!-- Redis -> Database -->
-  <path d="M 1070 330 L 1140 330" fill="none" stroke="#F87171" stroke-width="2" marker-end="url(#arrowWhite)"/>
+  <path d="M 1065 330 L 1120 330" fill="none" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)"/>
 
-  <!-- Organization DB -> FastAPI (Open API Route) -->
-  <line x1="680" y1="485" x2="680" y2="450" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowAmber)"/>
-  <rect x="635" y="460" width="90" height="16" rx="4" fill="#090D16"/>
-  <text x="680" y="472" fill="#FBBF24" font-size="9" font-weight="800" text-anchor="middle">open api route</text>
+  <!-- Organization DB -> FastAPI (open api route) -->
+  <line x1="670" y1="480" x2="670" y2="450" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)"/>
+  <rect x="620" y="458" width="100" height="16" rx="4" fill="#111113" stroke="#52525B" stroke-width="1"/>
+  <text x="670" y="470" fill="#FFFFFF" font-size="9" font-weight="800" text-anchor="middle">open api route</text>
 
-  <!-- Database to FastAPI directly -->
-  <path d="M 1140 380 L 1110 380 L 1110 420 L 800 420" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowCyan)"/>
-  <rect x="910" y="410" width="120" height="16" rx="4" fill="#090D16"/>
-  <text x="970" y="422" fill="#38BDF8" font-size="8" font-weight="700" text-anchor="middle">INDEXED COUNT &amp; TOKENS</text>
+  <!-- Database -> FastAPI directly -->
+  <path d="M 1120 375 L 1090 375 L 1090 415 L 795 415" fill="none" stroke="#FFFFFF" stroke-width="1.8" marker-end="url(#arrowWhite)"/>
+  <rect x="895" y="405" width="145" height="16" rx="4" fill="#111113" stroke="#52525B" stroke-width="1"/>
+  <text x="967" y="417" fill="#FFFFFF" font-size="8" font-weight="700" text-anchor="middle">INDEXED COUNT &amp; TOKENS</text>
 
   <!-- ==================== BOTTOM REQUIREMENTS PANELS ==================== -->
 
   <!-- PANEL 1: FUNCTIONAL REQUIREMENTS -->
-  <g transform="translate(60, 640)">
-    <rect width="720" height="440" rx="16" fill="#0E1626" stroke="#38BDF8" stroke-width="2" filter="url(#cardGlow)"/>
+  <g transform="translate(60, 620)">
+    <rect width="720" height="480" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" filter="url(#cardShadow)"/>
     
     <!-- Title -->
-    <rect x="20" y="18" width="170" height="24" rx="6" fill="#0284C7"/>
-    <text x="105" y="34" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">FUNCTIONAL REQUIREMENTS</text>
-    <text x="205" y="35" fill="#94A3B8" font-size="11">Core System Capabilities &amp; Verification Evidence</text>
+    <rect x="20" y="18" width="175" height="24" rx="6" fill="#27272A" stroke="#FFFFFF" stroke-width="1"/>
+    <text x="107" y="34" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">Functinal requirenment</text>
+    <text x="210" y="35" fill="#A1A1AA" font-size="11">Core System Capabilities (As Built)</text>
 
     <!-- F1: Ingest Feedback -->
-    <g transform="translate(20, 56)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#38BDF8"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">1. Ingest Feedback &amp; Normalization</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Loads raw customer reviews via CSV &amp; DB adapters (Amazon, CPSC, Support Tickets), normalizes to unified schema, SHA-256 dedupe.</text>
+    <g transform="translate(20, 54)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#FFFFFF"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Ingest feedback</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Loads reviews by CSV or adapters (db adapters connect to any db), normalize them into one schema</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">and dedupe them with SHA-256 fingerprinting (Amazon Reviews, CPSC, Support Tickets).</text>
     </g>
 
-    <!-- F2: Detect Defect Signals -->
-    <g transform="translate(20, 116)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
+    <!-- F2: Detects Defects -->
+    <g transform="translate(20, 122)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
       <circle cx="16" cy="18" r="4" fill="#34D399"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">2. Multi-Layer Defect Signal Detection &amp; Spike Engine</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Regex clustering on safety terms (overheating, shock, fire) + Bayesian severity weighting + 14-day defect spike detection ($k \ge 2.0x$).</text>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Detects defect signals &amp; velocity spikes</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Multi-layer regex &amp; safety taxonomy for critical hazard terms (burn, spark, fire, battery burst)</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">plus 14-day defect frequency spike detector comparing against historical baseline.</text>
     </g>
 
-    <!-- F3: Risk Scoring & Prioritization -->
-    <g transform="translate(20, 176)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#A78BFA"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">3. Prioritized Risk Queue &amp; Lead Time Prediction</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Scores hazard probability (0–100), tracks review velocity, and flags critical items ~4–12 weeks prior to formal regulatory recall.</text>
+    <!-- F3: Prioritizes Defect Risk Queue -->
+    <g transform="translate(20, 190)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#C084FC"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Prioritizes risk queue &amp; lead-time warning</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Bayesian hazard severity scoring (0-100 scale) prioritizing dangerous anomalies</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">and predicting recall hazard windows 4-12 weeks before official regulator action.</text>
     </g>
 
-    <!-- F4: RAG Grounded Copilot -->
-    <g transform="translate(20, 236)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#F59E0B"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">4. RAG Copilot with Grounded Review ID Citations</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">NVIDIA NIM LLM generates root-cause explanations grounded exclusively in retrieved reviews with mandatory review ID citations; refuses hallucinations.</text>
+    <!-- F4: RAG Root-Cause Explanations -->
+    <g transform="translate(20, 258)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#60A5FA"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; RAG root-cause assistant (Ask EarlyEcho)</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">NVIDIA NIM LLM generates grounded answers strictly citing retrieved review IDs [R-EXT-*]</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">with strict refusal of ungrounded speculation or hallucinated claims.</text>
     </g>
 
-    <!-- F5: Multi-Channel Alerts -->
-    <g transform="translate(20, 296)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#EF4444"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">5. Multi-Channel Alert Directives (Email &amp; Slack Webhook)</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Fires alerts automatically on threshold breach or velocity spike via Resend transactional email and Slack incoming webhooks with fail-soft isolation.</text>
+    <!-- F5: Multi-Channel Alert Directives -->
+    <g transform="translate(20, 326)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#F87171"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Multi-channel alert engine &amp; directives</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Compiles natural language rules into temporal directives; dispatches real transactional emails</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">via Resend API and JSON incident payloads to Slack webhooks upon severity threshold breach.</text>
     </g>
 
-    <!-- F6: Live Updates -->
-    <g transform="translate(20, 356)">
-      <rect width="680" height="66" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#38BDF8"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">6. Zero-Flicker Live Synchronization (/system/changes)</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Shared useLiveData hook polls composite change token every 4.5s; updates Overview, Risk Queue, and Sidebar badge within ~4s without page reload.</text>
-      <text x="28" y="56" fill="#38BDF8" font-size="9" font-weight="700">Preserves scroll position, active filters, page selection, and modal inputs.</text>
+    <!-- F6: Live Updates Without Refresh -->
+    <g transform="translate(20, 394)">
+      <rect width="680" height="70" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#34D399"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Live zero-flicker dashboard synchronization (/system/changes)</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Unified useLiveData hook polls composite change token every 4.5s; automatically updates</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">Overview, Risk Queue, Alerts, and header badge without manual page reload.</text>
+      <text x="28" y="66" fill="#34D399" font-size="9" font-weight="700">Preserves scroll position, active filters, page selection, and modal inputs.</text>
     </g>
   </g>
 
   <!-- PANEL 2: NON-FUNCTIONAL REQUIREMENTS -->
-  <g transform="translate(820, 640)">
-    <rect width="720" height="440" rx="16" fill="#0E1626" stroke="#34D399" stroke-width="2" filter="url(#cardGlow)"/>
+  <g transform="translate(820, 620)">
+    <rect width="720" height="480" rx="14" fill="#18181C" stroke="#FFFFFF" stroke-width="1.8" filter="url(#cardShadow)"/>
     
     <!-- Title -->
-    <rect x="20" y="18" width="195" height="24" rx="6" fill="#059669"/>
-    <text x="117" y="34" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">NON-FUNCTIONAL REQUIREMENTS</text>
-    <text x="228" y="35" fill="#94A3B8" font-size="11">Performance, Reliability, Security &amp; Data Purity</text>
+    <rect x="20" y="18" width="200" height="24" rx="6" fill="#27272A" stroke="#FFFFFF" stroke-width="1"/>
+    <text x="120" y="34" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">Non-Functinal requirenment</text>
+    <text x="235" y="35" fill="#A1A1AA" font-size="11">Production Performance, Resilience &amp; Purity</text>
 
     <!-- NF1: Sub-50ms Latency -->
-    <g transform="translate(20, 56)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
+    <g transform="translate(20, 54)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
       <circle cx="16" cy="18" r="4" fill="#34D399"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">1. Sub-50ms API Latency &amp; In-Memory Change Cache</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">/system/changes resolves in &lt;1ms from in-memory cache (2.0s TTL), bypassing DB connection overhead on cache hits; indexed count/max only.</text>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Sub-50ms latency &amp; in-memory change token</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">GET /api/v1/system/changes resolves in &lt;1ms from in-memory cache (2.0s TTL), bypassing</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">database roundtrips on cache hits; queries indexed counts only when expired.</text>
     </g>
 
-    <!-- NF2: Fail-Soft Network Calls -->
-    <g transform="translate(20, 116)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#F59E0B"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">2. Fail-Soft Network Isolation &amp; Graceful Degradation</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Strict 5-second timeout on all outbound network calls (Resend, Slack, LLM). Failures fail soft without crashing pipelines or database transactions.</text>
+    <!-- NF2: Fail-Soft Network Isolation -->
+    <g transform="translate(20, 122)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#FBBF24"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Fail-soft network isolation &amp; graceful degradation</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Strict 5-second timeout on all outbound network calls (Resend, Slack, NVIDIA NIM LLM).</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">Outbound timeouts fail soft without crashing pipelines or aborting database transactions.</text>
     </g>
 
     <!-- NF3: Zero Temporal Leakage -->
-    <g transform="translate(20, 176)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#38BDF8"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">3. Zero Temporal Leakage &amp; Chronological Integrity</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Backtesting and lead-time simulations strictly mask all reviews after the simulation date, preventing future data leakage into historical scoring.</text>
+    <g transform="translate(20, 190)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#60A5FA"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Zero temporal leakage &amp; chronological integrity</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Backtesting and lead-time simulations strictly mask all reviews after the simulation date,</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">preventing future data contamination from artificially inflating historical performance.</text>
     </g>
 
-    <!-- NF4: Resource & Bandwidth Efficiency -->
-    <g transform="translate(20, 236)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#A78BFA"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">4. Single-Tab Polling Efficiency &amp; Visibility Pausing</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Single polling loop per browser tab; consumes only 230 bytes per poll (~3.0 KB/min). Pauses immediately when tab is hidden (Page Visibility API).</text>
+    <!-- NF4: Polling Efficiency -->
+    <g transform="translate(20, 258)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#C084FC"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Single-tab polling efficiency &amp; visibility pausing</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Single polling loop per browser tab; consumes only 230 bytes per poll (~3.0 KB/min).</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">Pauses immediately when tab is hidden (Page Visibility API) to eliminate wasted battery/bandwidth.</text>
     </g>
 
     <!-- NF5: Exponential Backoff -->
-    <g transform="translate(20, 296)">
-      <rect width="680" height="52" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#EF4444"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">5. Exponential Backoff &amp; Reconnection Resilience</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">On consecutive server errors, polling interval backs off gracefully (4.5s -> 8s -> 14.5s -> 26s -> 30s max); header displays 'Reconnecting…'.</text>
+    <g transform="translate(20, 326)">
+      <rect width="680" height="60" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#F87171"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Exponential backoff &amp; connection resilience</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">On network failures, polling interval backs off gracefully (4.5s -&gt; 8s -&gt; 14.5s -&gt; 26s -&gt; 30s max);</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">dashboard header shows 'Reconnecting…' and resumes instant synchronization when online.</text>
     </g>
 
-    <!-- NF6: Data Security & Audit Governance -->
-    <g transform="translate(20, 356)">
-      <rect width="680" height="66" rx="8" fill="#131F33" stroke="#1E293B"/>
-      <circle cx="16" cy="18" r="4" fill="#10B981"/>
-      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">6. Enterprise Security &amp; Audit Trail</text>
-      <text x="28" y="40" fill="#94A3B8" font-size="9.5">Zero committed API keys/secrets; environment-driven credentials; append-only audit_log table records all rule modifications, exports, and alerts.</text>
-      <text x="28" y="56" fill="#34D399" font-size="9" font-weight="700">Database connection strings and CORS strictly guarded.</text>
+    <!-- NF6: Enterprise Security & Audit Governance -->
+    <g transform="translate(20, 394)">
+      <rect width="680" height="70" rx="8" fill="#202024" stroke="#3F3F46" stroke-width="1"/>
+      <circle cx="16" cy="18" r="4" fill="#34D399"/>
+      <text x="28" y="22" fill="#FFFFFF" font-size="11" font-weight="800">&gt; Enterprise security &amp; audit governance</text>
+      <text x="28" y="38" fill="#D4D4D8" font-size="9.5">Zero hardcoded secrets; environment-driven credentials; append-only audit_log table</text>
+      <text x="28" y="52" fill="#A1A1AA" font-size="9.5">records all rule creations, manual evaluations, exports, and automated alert deliveries.</text>
+      <text x="28" y="66" fill="#34D399" font-size="9" font-weight="700">Strict database connection pooling and CORS origin isolation.</text>
     </g>
   </g>
 </svg>
