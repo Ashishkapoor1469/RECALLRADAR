@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grounded AI Copilot — Answers with Citations, Not Guesswork</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { width: 1920px; height: 1080px; overflow: hidden; background: #0E1015; }
+.pill { display:inline-block;background:rgba(52,211,153,0.18);color:#34D399;font-size:22px;font-weight:700;padding:3px 10px;border-radius:8px;border:1px solid rgba(52,211,153,0.4);animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100% {box-shadow:0 0 0 0 rgba(52,211,153,0.5);} 50% {box-shadow:0 0 14px 2px rgba(52,211,153,0.35);} }
+</style>
+</head>
+<body>
+<section style="width:1920px;height:1080px;margin:0 auto;overflow:hidden;position:relative;background:#0E1015;font-family:'Inter','Outfit','Segoe UI',system-ui,sans-serif;">
+  <!-- Header -->
+  <div style="position:absolute;left:110px;top:60px;font-size:20px;color:#34D399;letter-spacing:.08em;font-weight:600;">GROUNDED AI COPILOT</div>
+  <div style="position:absolute;left:110px;top:92px;font-size:64px;font-weight:700;color:#F5F7FA;">Zero Hallucinations, 100% Citable Proof</div>
+
+  <!-- LEFT: chat mockup -->
+  <div style="position:absolute;left:110px;top:220px;width:880px;height:560px;background:#17171C;border:1px solid rgba(107,114,128,0.3);border-radius:20px;overflow:hidden;animation:chatIn .5s .2s both;">
+    <div style="padding:20px 26px;border-bottom:1px solid rgba(107,114,128,0.25);display:flex;align-items:center;gap:14px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(52,211,153,0.2);display:flex;align-items:center;justify-content:center;color:#34D399;"><i class="fas fa-robot"></i></div>
+      <div style="font-size:26px;font-weight:700;color:#F5F7FA;">Ask EarlyEcho</div>
+      <div style="font-size:22px;color:#34D399;margin-left:auto;">&#9679; online</div>
+    </div>
+    <div style="padding:24px 26px;display:flex;flex-direction:column;gap:18px;">
+      <!-- user question -->
+      <div style="align-self:flex-end;max-width:70%;background:rgba(52,211,153,0.16);border:1px solid rgba(52,211,153,0.3);border-radius:16px 16px 4px 16px;padding:14px 18px;font-size:28px;color:#E5E7EB;animation:msgIn .4s .5s both;">
+        Why is the NeuroStim-9 hazard score rising?
+      </div>
+      <!-- AI answer -->
+      <div style="align-self:flex-start;max-width:100%;background:#101318;border:1px solid rgba(107,114,128,0.3);border-radius:16px 16px 16px 4px;padding:18px 20px;font-size:28px;color:#E5E7EB;line-height:1.55;animation:msgIn .4s .9s both;">
+        <div>Three reports describe the same symptom cluster - <span style="color:#F5F7FA;font-weight:600;">device overheating near the charging port</span> - all in the last 14 days.</div>
+        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;">
+          <span class="pill">[R-104]</span><span style="font-size:22px;color:#9CA3AF;">MAUDE #4561 - Jan 2026</span>
+          <span class="pill">[R-209]</span><span style="font-size:22px;color:#9CA3AF;">Ticket T-8891 - Feb 2026</span>
+          <span class="pill">[R-311]</span><span style="font-size:22px;color:#9CA3AF;">Review #A-773 - Feb 2026</span>
+        </div>
+      </div>
+      <div style="font-size:22px;color:#6B7280;animation:msgIn .4s 1.3s both;">Every claim is bound to a raw review. Uncited claims are rejected.</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: evidence rail -->
+  <div style="position:absolute;left:1030px;top:220px;width:780px;height:560px;background:#17171C;border:1px solid rgba(52,211,153,0.3);border-radius:20px;padding:24px;animation:railIn .5s .6s both;">
+    <div style="font-size:28px;font-weight:700;color:#F5F7FA;margin-bottom:6px;">Evidence Rail</div>
+    <div style="font-size:22px;color:#6B7280;margin-bottom:18px;">Raw customer quotes anchored to every citation</div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="background:#101318;border-left:4px solid #34D399;border-radius:10px;padding:14px 18px;">
+        <div style="font-size:24px;color:#F5F7FA;font-style:italic;">"Device got uncomfortably hot, smell of burning plastic near the plug."</div>
+        <div style="font-size:22px;color:#34D399;margin-top:6px;">[R-104] - MAUDE #4561 - Jan 2026</div>
+      </div>
+      <div style="background:#101318;border-left:4px solid #34D399;border-radius:10px;padding:14px 18px;">
+        <div style="font-size:24px;color:#F5F7FA;font-style:italic;">"Same issue as others - charger port overheats during sleep tracking."</div>
+        <div style="font-size:22px;color:#34D399;margin-top:6px;">[R-209] - Ticket T-8891 - Feb 2026</div>
+      </div>
+      <div style="background:#101318;border-left:4px solid #34D399;border-radius:10px;padding:14px 18px;">
+        <div style="font-size:24px;color:#F5F7FA;font-style:italic;">"Third week of nightly overheating. Worried about fire risk."</div>
+        <div style="font-size:22px;color:#34D399;margin-top:6px;">[R-311] - Review #A-773 - Feb 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dual-track lanes -->
+  <div style="position:absolute;left:110px;top:820px;width:1700px;height:200px;display:flex;gap:36px;">
+    <div style="flex:1;background:#17171C;border:1px solid rgba(52,211,153,0.45);border-radius:18px;padding:22px 26px;animation:laneIn .6s 1s both;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <i class="fas fa-comment-dots" style="color:#34D399;font-size:24px;"></i>
+        <div style="font-size:24px;color:#34D399;font-weight:700;letter-spacing:.05em;">EXECUTIVE TAKEAWAY</div>
+      </div>
+      <div style="font-size:30px;color:#E5E7EB;line-height:1.45;">Ask plain-English questions. The AI answers with <span style="color:#F5F7FA;font-weight:600;">receipts</span> - dates, excerpts, review IDs. It never guesses.</div>
+    </div>
+    <div style="flex:1;background:#17171C;border:1px solid rgba(139,92,246,0.3);border-radius:18px;padding:22px 26px;animation:laneIn .6s 1.15s both;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <i class="fas fa-brain" style="color:#8B5CF6;font-size:24px;"></i>
+        <div style="font-size:24px;color:#A78BFA;font-weight:700;letter-spacing:.05em;">TECHNICAL DEEP DIVE</div>
+      </div>
+      <div style="font-size:30px;color:#E5E7EB;line-height:1.45;">Grounded RAG over NVIDIA NIM (<span style="color:#F5F7FA;font-weight:600;">meta/llama-3.1-70b-instruct</span>); reviews indexed by <span style="color:#F5F7FA;font-weight:600;">all-MiniLM-L6-v2</span> in pgvector. Every claim needs [R-###]; uncited is rejected.</div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes chatIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+    @keyframes railIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+    @keyframes msgIn { from {opacity:0; transform:translateY(14px);} to {opacity:1; transform:translateY(0);} }
+    @keyframes laneIn { from {opacity:0; transform:translateY(24px);} to {opacity:1; transform:translateY(0);} }
+  </style>
+</section>
+</body>
+</html>

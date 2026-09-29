@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bayesian Hazard Scoring & Spike Detection — Turning Noise into a Number</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { width: 1920px; height: 1080px; overflow: hidden; background: #0E1015; }
+</style>
+</head>
+<body>
+<section style="width:1920px;height:1080px;margin:0 auto;overflow:hidden;position:relative;background:#0E1015;font-family:'Inter','Outfit','Segoe UI',system-ui,sans-serif;">
+  <!-- Header -->
+  <div style="position:absolute;left:110px;top:60px;font-size:20px;color:#34D399;letter-spacing:.08em;font-weight:600;">THE MATH MADE SIMPLE</div>
+  <div style="position:absolute;left:110px;top:92px;font-size:64px;font-weight:700;color:#F5F7FA;">Bayesian Hazard Scoring &amp; Spike Detection</div>
+
+  <!-- LEFT: risk dial -->
+  <div style="position:absolute;left:110px;top:220px;width:720px;height:430px;background:#17171C;border:1px solid rgba(107,114,128,0.3);border-radius:20px;padding:24px;animation:panelIn .5s .2s both;">
+    <div style="font-size:28px;font-weight:700;color:#F5F7FA;">Hazard Score Dial</div>
+    <div style="font-size:22px;color:#6B7280;margin-top:4px;">Posterior probability, 0-100</div>
+    <div style="position:relative;width:340px;height:200px;margin:20px auto 0;">
+      <!-- dial background -->
+      <svg width="340" height="200" viewBox="0 0 340 200">
+        <path d="M40 170 A150 150 0 0 1 300 170" fill="none" stroke="#2B3038" stroke-width="18" stroke-linecap="round"/>
+        <path d="M40 170 A150 150 0 0 1 300 170" fill="none" stroke="#EF4444" stroke-width="18" stroke-linecap="round" stroke-dasharray="90 700" pathLength="314" opacity="0"/>
+        <path d="M40 170 A150 150 0 0 1 300 170" fill="none" stroke="#F59E0B" stroke-width="18" stroke-linecap="round" stroke-dasharray="90 700" pathLength="314" opacity="0"/>
+        <path d="M40 170 A150 150 0 0 1 300 170" fill="none" stroke="#34D399" stroke-width="18" stroke-linecap="round" stroke-dasharray="90 700" pathLength="314"/>
+        <!-- needle at ~62% -->
+        <line x1="170" y1="170" x2="170" y2="60" stroke="#34D399" stroke-width="5" stroke-linecap="round" style="transform-origin:170px 170px;transform:rotate(0deg);animation:needle 1.5s 1s both ease-out;"/>
+        <circle cx="170" cy="170" r="10" fill="#0E1015" stroke="#34D399" stroke-width="3"/>
+      </svg>
+      <div style="position:absolute;top:14px;left:0;right:0;text-align:center;font-size:44px;font-weight:800;color:#F5F7FA;">62<span style="font-size:24px;color:#9CA3AF;">/100</span></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:22px;color:#F59E0B;font-weight:600;">AMBER WATCH BAND - CONFIDENCE 88%</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: velocity spike chart -->
+  <div style="position:absolute;left:870px;top:220px;width:940px;height:430px;background:#17171C;border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:24px;animation:panelIn .5s .4s both;">
+    <div style="font-size:28px;font-weight:700;color:#F5F7FA;">Defect Velocity Over Time</div>
+    <div style="font-size:22px;color:#6B7280;margin-top:4px;">Mentions / day vs Poisson baseline</div>
+    <svg width="888" height="250" viewBox="0 0 888 250" style="margin-top:14px;">
+      <!-- grid -->
+      <line x1="0" y1="0" x2="888" y2="0" stroke="#2B3038" stroke-width="1"/>
+      <line x1="0" y1="62" x2="888" y2="62" stroke="#2B3038" stroke-width="1" stroke-dasharray="4 6"/>
+      <line x1="0" y1="125" x2="888" y2="125" stroke="#2B3038" stroke-width="1" stroke-dasharray="4 6"/>
+      <line x1="0" y1="188" x2="888" y2="188" stroke="#2B3038" stroke-width="1" stroke-dasharray="4 6"/>
+      <!-- threshold line -->
+      <line x1="0" y1="90" x2="888" y2="90" stroke="#F59E0B" stroke-width="2" stroke-dasharray="8 5"/>
+      <text x="10" y="82" fill="#F59E0B" font-size="20" font-weight="600">SPIKE THRESHOLD (3+ mentions)</text>
+      <!-- baseline draw line -->
+      <polyline points="0,150 60,144 120,146 180,150 240,142 300,146 360,150 420,146 480,142 540,148 600,145 660,150 720,142 780,146 840,150" fill="none" stroke="#9CA3AF" stroke-width="3" stroke-linejoin="round" style="stroke-dasharray:1600;stroke-dashoffset:1600;animation:draw 1.6s .3s ease-out forwards;"/>
+      <!-- spike -->
+      <polyline points="0,150 60,144 120,146 180,150 240,142 300,146 360,150 420,146 480,142 540,148 600,145 660,150 720,142 760,60 800,40 840,46 880,50" fill="none" stroke="#F59E0B" stroke-width="4" stroke-linejoin="round" style="stroke-dasharray:1600;stroke-dashoffset:1600;animation:draw 1.2s 2s ease-out forwards;"/>
+      <circle cx="800" cy="40" r="9" fill="#F59E0B" style="animation:pulse 1.5s 3s infinite;"/>
+      <text x="770" y="26" fill="#F59E0B" font-size="20" font-weight="700">VELOCITY x5</text>
+      <text x="18" y="236" fill="#9CA3AF" font-size="20">Day 1</text>
+      <text x="800" y="236" fill="#9CA3AF" font-size="20">Day 90</text>
+    </svg>
+  </div>
+
+  <!-- Dual-track lanes -->
+  <div style="position:absolute;left:110px;top:690px;width:1700px;height:330px;display:flex;gap:36px;">
+    <div style="flex:1;background:#17171C;border:1px solid rgba(52,211,153,0.45);border-radius:20px;padding:28px 32px;animation:laneIn .6s .8s both;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+        <i class="fas fa-chart-line" style="color:#34D399;font-size:26px;"></i>
+        <div style="font-size:24px;color:#34D399;font-weight:700;letter-spacing:.05em;">EXECUTIVE TAKEAWAY</div>
+      </div>
+      <div style="font-size:32px;color:#E5E7EB;line-height:1.45;">We don't just count bad words. We weigh defect <span style="color:#F5F7FA;font-weight:600;">velocity, severity</span> (burns vs scratches), and <span style="color:#F5F7FA;font-weight:600;">historical confidence</span> - so false alarms stay low.</div>
+    </div>
+    <div style="flex:1;background:#17171C;border:1px solid rgba(139,92,246,0.3);border-radius:20px;padding:28px 32px;animation:laneIn .6s .95s both;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+        <i class="fas fa-square-root-alt" style="color:#8B5CF6;font-size:26px;"></i>
+        <div style="font-size:24px;color:#A78BFA;font-weight:700;letter-spacing:.05em;">TECHNICAL DEEP DIVE</div>
+      </div>
+      <div style="font-size:32px;color:#E5E7EB;line-height:1.45;">Posterior from prior + Bayesian likelihood over semantic clusters &amp; severity multipliers. Spike = current velocity vs baseline Poisson, with a <span style="color:#F5F7FA;font-weight:600;">>= 3 distinct mentions</span> guardrail.</div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes panelIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+    @keyframes laneIn { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
+    @keyframes draw { to {stroke-dashoffset:0;} }
+    @keyframes pulse { 0%,100% {opacity:1;} 50% {opacity:.3;} }
+    @keyframes needle { from {transform:rotate(0deg);} to {transform:rotate(84deg);} }
+  </style>
+</section>
+</body>
+</html>

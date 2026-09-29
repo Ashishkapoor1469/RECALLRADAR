@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EarlyEcho (RecallRadar) — Presentation Deck</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #060709;
+    color: #F5F7FA;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Sleek top control bar */
+  #top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 58px;
+    background: #0E1015;
+    border-bottom: 1px solid rgba(52, 211, 153, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 1000;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #F5F7FA;
+    letter-spacing: -0.02em;
+    user-select: none;
+  }
+
+  .brand span {
+    color: #34D399;
+  }
+
+  .badge {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    font-weight: 600;
+  }
+
+  .center-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #F5F7FA;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover {
+    background: rgba(52, 211, 153, 0.2);
+    border-color: #34D399;
+    color: #34D399;
+  }
+
+  #slide-counter {
+    font-size: 15px;
+    font-weight: 700;
+    color: #34D399;
+    background: rgba(52, 211, 153, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    padding: 6px 14px;
+    border-radius: 8px;
+    min-width: 76px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+  }
+
+  select#slide-select {
+    background: #17171C;
+    color: #F5F7FA;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    max-width: 400px;
+  }
+
+  select#slide-select:focus {
+    border-color: #34D399;
+  }
+
+  .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Stage Container: exact space below the top bar */
+  #stage-container {
+    position: absolute;
+    top: 58px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    background: #060709;
+  }
+
+  /* Stage: Absolutely centered with translate(-50%, -50%) */
+  #stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: center center;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 2px rgba(52, 211, 153, 0.4);
+    background: #0E1015;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  #slide-frame {
+    width: 1920px;
+    height: 1080px;
+    border: none;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<header id="top-bar">
+  <div class="brand">
+    <div>Early<span>Echo</span></div>
+    <div class="badge">RecallRadar</div>
+  </div>
+
+  <div class="center-controls">
+    <button class="btn" id="prev-btn" onclick="prevSlide()" title="Previous slide (Left Arrow)">
+      <i class="fas fa-arrow-left"></i> Prev
+    </button>
+    <span id="slide-counter">1 / 10</span>
+    <button class="btn" id="next-btn" onclick="nextSlide()" title="Next slide (Right Arrow / Space)">
+      Next <i class="fas fa-arrow-right"></i>
+    </button>
+    
+    <select id="slide-select" onchange="goToSlide(this.value)">
+      <option value="1">Slide 1: EarlyEcho Early-Warning Engine</option>
+      <option value="2">Slide 2: The Multi-Million-Dollar Blind Spot</option>
+      <option value="3">Slide 3: Market Positioning — Where EarlyEcho Fits</option>
+      <option value="4">Slide 4: Architecture — End-to-End Pipeline</option>
+      <option value="5">Slide 5: Math — Bayesian Hazard &amp; Velocity Spikes</option>
+      <option value="6">Slide 6: AI Copilot — Zero Hallucinations, 100% Citable</option>
+      <option value="7">Slide 7: Operations — Zero-Flicker Realtime Sync</option>
+      <option value="8">Slide 8: Backtest Lab — 52 Days Lead Time Proof</option>
+      <option value="9">Slide 9: Compliance — Multi-Channel Alert &amp; Audit Trail</option>
+      <option value="10">Slide 10: Summary &amp; Next Steps — Turn Awareness into Action</option>
+    </select>
+  </div>
+
+  <div class="right-controls">
+    <button class="btn" onclick="toggleFullScreen()" title="Toggle Fullscreen (F)">
+      <i class="fas fa-expand"></i> Fullscreen (F)
+    </button>
+  </div>
+</header>
+
+<!-- Slide Stage Container -->
+<div id="stage-container">
+  <div id="stage">
+    <iframe id="slide-frame" src="slide1.html" title="Slide presentation"></iframe>
+  </div>
+</div>
+
+<script>
+  const totalSlides = 10;
+  let currentSlide = 1;
+
+  function resizeStage() {
+    const container = document.getElementById('stage-container');
+    const stage = document.getElementById('stage');
+    if (!container || !stage) return;
+    
+    // Provide 20px padding on every side
+    const margin = 20;
+    const availWidth = Math.max(container.clientWidth - (margin * 2), 100);
+    const availHeight = Math.max(container.clientHeight - (margin * 2), 100);
+    
+    // Exact 16:9 1920x1080 scale calculation
+    const scale = Math.min(availWidth / 1920, availHeight / 1080);
+    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  }
+
+  window.addEventListener('resize', resizeStage);
+  window.addEventListener('DOMContentLoaded', resizeStage);
+  // Quick timeout to guarantee correct viewport computation
+  setTimeout(resizeStage, 50);
+  setTimeout(resizeStage, 250);
+
+  function updateSlide(num) {
+    if (num < 1) num = 1;
+    if (num > totalSlides) num = totalSlides;
+    currentSlide = num;
+    document.getElementById('slide-frame').src = `slide${currentSlide}.html`;
+    document.getElementById('slide-counter').textContent = `${currentSlide} / ${totalSlides}`;
+    document.getElementById('slide-select').value = currentSlide;
+  }
+
+  function prevSlide() {
+    if (currentSlide > 1) updateSlide(currentSlide - 1);
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides) updateSlide(currentSlide + 1);
+  }
+
+  function goToSlide(val) {
+    updateSlide(parseInt(val, 10));
+  }
+
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+    }
+  }
+
+  // Keyboard navigation
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') {
+      prevSlide();
+    } else if (e.key.toLowerCase() === 'f') {
+      toggleFullScreen();
+    }
+  });
+</script>
+
+</body>
+</html>
