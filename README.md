@@ -7,6 +7,29 @@ EarlyEcho is an enterprise safety defect intelligence system that continuously m
 
 ---
 
+## 🆚 Where EarlyEcho Fits
+
+Review analytics tools tell you what customers are talking about. Recall management tools help you run a recall — after someone has already decided one is needed. **EarlyEcho sits in between**: it turns customer feedback into a cited, evidence-backed hazard score *before* a recall decision is made.
+
+|  | **Review analytics**<br>(Thematic, Chattermill, Revuze) | **Recall management**<br>(Qualityze, TrackWise, IONI) | **EarlyEcho** |
+|---|:---:|:---:|:---:|
+| Reads customer feedback | ✅ | ❌ | ✅ |
+| Safety-specific hazard score | ⚠️ mostly themes and sentiment | ⚠️ manual health-hazard analysis | ✅ 0–100 score per product |
+| Cited evidence for every flag | ⚠️ varies | ❌ | ✅ exact review, date & phrase |
+| Proves lead time against real recalls | ❌ | ❌ | ✅ Backtest Lab |
+| Automatic alerts | ⚠️ topic-spike alerts | ⚠️ workflow notifications | ✅ plain-English rules, real emails |
+| **Stage** | Insight | After the decision | **Before the decision** |
+
+> *Comparison based on publicly available product descriptions, not hands-on testing of competitor products.*
+
+---
+
+### Why this matters
+
+The warning signs for most product failures are usually already sitting in customer reviews — weeks before an official recall. EarlyEcho closes the gap between *"customers are complaining"* and *"we caught it early enough to act,"* with every score backed by a citable review, not a black box.
+
+---
+
 ## Architecture & Dataflow
 
 ![EarlyEcho System Architecture](docs/earlyecho-architecture.svg)
