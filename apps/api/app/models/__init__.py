@@ -13,7 +13,10 @@ from app.models.models import (
     Conversation,
     Message,
     ReviewSignal,
-    AuditLog
+    AuditLog,
+    ImprovementSignal,
+    ImprovementProductMetric,
+    ProductHold
 )
 
 __all__ = [
@@ -31,6 +34,9 @@ __all__ = [
     "Conversation",
     "Message",
     "ReviewSignal",
-    "AuditLog"
+    "AuditLog",
+    "ImprovementSignal",
+    "ImprovementProductMetric",
+    "ProductHold"
 ]
 

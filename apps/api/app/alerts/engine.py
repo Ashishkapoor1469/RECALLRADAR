@@ -74,6 +74,19 @@ class AlertEngine:
             self.db.add(ev)
         self.db.commit()
 
+        # Auto-hold trigger for critical hazard threshold
+        try:
+            from app.services.hold_service import HoldService
+            hold_service = HoldService(self.db)
+            hold_service.trigger_auto_hold(
+                product_id=prod_id,
+                risk_score=risk_score,
+                threshold=threshold,
+                reason=f"Hazard score {risk_score:.1f} crossed threshold ({threshold:.1f})"
+            )
+        except Exception as e:
+            print(f"Auto-hold evaluation warning in evaluate_product_risk: {e}")
+
         return alert
 
     def evaluate_defect_spike(
@@ -215,6 +228,117 @@ class AlertEngine:
                 )
             except Exception as e:
                 print(f"Resend dispatch for spike alert warning: {e}")
+
+        return alert
+
+    def evaluate_improvement_index(
+        self,
+        product_id: str,
+        threshold: float = 60.0,
+        window_days: int = 21,
+        as_of_date: Optional[datetime] = None,
+        dispatch: bool = False,
+        recipient: Optional[str] = None
+    ) -> Optional[Alert]:
+        """
+        Evaluates whether a product's Improvement Index crosses threshold (e.g. 60 or 70)
+        within a configurable window (e.g. 14-21 days), and fires an Alert reusing the Resend dispatcher.
+        """
+        from app.models.models import ImprovementProductMetric, ImprovementSignal
+        now = as_of_date or datetime.utcnow()
+        window_start = now - timedelta(days=window_days)
+
+        metric = self.db.query(ImprovementProductMetric).filter(
+            ImprovementProductMetric.product_id == product_id
+        ).first()
+
+        if not metric or metric.improvement_index < threshold:
+            return None
+
+        # Check recent improvement signals within window
+        recent_signals = self.db.query(ImprovementSignal).filter(
+            ImprovementSignal.product_id == product_id,
+            ImprovementSignal.created_at >= window_start,
+            ImprovementSignal.created_at <= now
+        ).all()
+
+        prod = self.db.query(Product).filter(Product.id == product_id).first()
+        prod_name = prod.name if prod else f"Product {product_id}"
+
+        top_cluster = metric.top_cluster or "Product Enhancement"
+        explanation_dict = {
+            "summary": f"Improvement Index threshold reached for {prod_name}: score is {metric.improvement_index:.1f}/100 (threshold: {threshold}) across {metric.review_count} suggestions. Primary customer request: '{top_cluster}'.",
+            "rule_type": "IMPROVEMENT_INDEX_SURGE",
+            "metric": "improvement_index",
+            "threshold": threshold,
+            "window_days": window_days,
+            "improvement_index": metric.improvement_index,
+            "top_cluster": top_cluster,
+            "recent_suggestions_count": len(recent_signals)
+        }
+
+        # Check existing active alert to prevent duplicates
+        existing = self.db.query(Alert).filter(
+            Alert.product_id == product_id,
+            Alert.alert_type == "IMPROVEMENT_INDEX_SURGE",
+            Alert.status == "ACTIVE"
+        ).first()
+
+        if existing:
+            existing.risk_score = metric.improvement_index
+            existing.explanation = json.dumps(explanation_dict)
+            existing.threshold = threshold
+            self.db.commit()
+            return existing
+
+        alert = Alert(
+            product_id=product_id,
+            alert_type="IMPROVEMENT_INDEX_SURGE",
+            threshold=threshold,
+            risk_score=metric.improvement_index,
+            confidence="HIGH" if metric.improvement_index >= 70 else "MEDIUM",
+            confidence_score=0.85,
+            triggered_at=now,
+            status="ACTIVE",
+            model_version="improve-alert-v1.0",
+            explanation=json.dumps(explanation_dict)
+        )
+        self.db.add(alert)
+        self.db.flush()
+
+        # Attach evidence
+        all_signals = recent_signals if recent_signals else self.db.query(ImprovementSignal).filter(ImprovementSignal.product_id == product_id).all()
+        for s in all_signals[:5]:
+            rev = self.db.query(Review).filter(Review.id == s.review_id).first()
+            if rev:
+                ev = AlertEvidence(
+                    alert_id=alert.id,
+                    review_id=rev.id,
+                    evidence_text=rev.body,
+                    danger_phrase=f"Suggestion: {s.suggestion_text}",
+                    relevance_score=s.confidence or 0.9
+                )
+                self.db.add(ev)
+
+        self.db.commit()
+        self.db.refresh(alert)
+
+        if dispatch:
+            try:
+                from app.alerts.resend_dispatcher import ResendAlertDispatcher
+                dispatcher = ResendAlertDispatcher()
+                dispatcher.dispatch_alert(
+                    product={"id": prod.external_id or prod.id if prod else product_id, "name": prod_name},
+                    alert={
+                        "risk_score": metric.improvement_index,
+                        "confidence": alert.confidence,
+                        "alert_type": "IMPROVEMENT_INDEX_SURGE",
+                        "explanation": explanation_dict["summary"]
+                    },
+                    recipient=recipient
+                )
+            except Exception as e:
+                print(f"Resend dispatch for improvement alert warning: {e}")
 
         return alert
 

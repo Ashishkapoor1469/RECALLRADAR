@@ -95,6 +95,7 @@ function FormattedMessageText({ text, isUser = false }: { text: string; isUser?:
 export default function AskEarlyEchoPage() {
   const [query, setQuery] = useState('');
   const [mode, setMode] = useState<'rag' | 'ai_chat'>('rag');
+  const [chatModeOption, setChatModeOption] = useState<'ask' | 'improvement'>('ask');
   const [selectedAsin, setSelectedAsin] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -110,7 +111,11 @@ export default function AskEarlyEchoPage() {
     if (!q.trim() && !selectedAsin) return;
 
     const activeMode = overrideMode || mode;
-    const userMsg = q.trim() || `Analyze product ASIN ${selectedAsin}`;
+    const activeSubMode = activeMode === 'ai_chat' ? chatModeOption : 'ask';
+    const userMsg = q.trim() || (activeSubMode === 'improvement'
+      ? `Generate improvement blueprint for product ASIN ${selectedAsin}`
+      : `Analyze product ASIN ${selectedAsin}`);
+
     setMessages((prev) => [...prev, { sender: 'user', text: userMsg, mode: activeMode }]);
     if (!textToSend) setQuery('');
     setLoading(true);
@@ -122,6 +127,7 @@ export default function AskEarlyEchoPage() {
         body: JSON.stringify({
           query: userMsg,
           mode: activeMode,
+          sub_mode: activeSubMode,
           product_id: selectedAsin || undefined
         }),
       });
@@ -199,24 +205,39 @@ export default function AskEarlyEchoPage() {
           </p>
         </div>
 
-        {/* Mode Selector Pill Toggle */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0 select-none">
-          <button
-            onClick={() => setMode('rag')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              mode === 'rag' ? 'bg-white text-brand-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-            }`}
+        {/* Mode Selector Pill Toggle & Slide 6 PPT Link */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <a
+            href="https://recallradar-ppt.vercel.app/?slide=6"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition"
           >
-            🔍 RAG Mode
-          </button>
-          <button
-            onClick={() => setMode('ai_chat')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              mode === 'ai_chat' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            🤖 AI Chat (NVIDIA NIM)
-          </button>
+            <span>📊 Slide 6: AI Copilot Deck</span>
+            <span className="text-[10px] text-indigo-400">&rarr;</span>
+          </a>
+
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 select-none">
+            <button
+              onClick={() => {
+                setMode('rag');
+                setChatModeOption('ask');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                mode === 'rag' ? 'bg-white text-brand-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              🔍 RAG Mode
+            </button>
+            <button
+              onClick={() => setMode('ai_chat')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                mode === 'ai_chat' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              🤖 AI Chat (NVIDIA NIM)
+            </button>
+          </div>
         </div>
       </div>
 
@@ -357,14 +378,57 @@ export default function AskEarlyEchoPage() {
 
         {loading && (
           <div className="flex items-center gap-2 p-4 bg-white border border-slate-200/80 rounded-2xl w-fit shadow-sm text-xs text-slate-500">
-            <span className="w-4 h-4 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></span>
-            <span>{mode === 'ai_chat' ? 'NVIDIA NIM investigator reasoning...' : 'Executing SQL tool over database...'}</span>
+            <span className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></span>
+            <span>
+              {mode === 'ai_chat'
+                ? (chatModeOption === 'improvement'
+                    ? 'NVIDIA NIM synthesizing genuine product improvement blueprint from real reviews... (please wait a few seconds)'
+                    : 'NVIDIA NIM investigator reasoning through defect history...')
+                : 'Executing SQL tool over database...'}
+            </span>
           </div>
         )}
       </div>
 
+      {/* Mode Control & Notice Bar Above Input */}
+      {mode === 'ai_chat' && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-600">Copilot Mode:</span>
+            <select
+              value={chatModeOption}
+              onChange={(e) => setChatModeOption(e.target.value as 'ask' | 'improvement')}
+              className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm cursor-pointer"
+            >
+              <option value="ask">Ask (Grounded Safety Q&amp;A)</option>
+              <option value="improvement">Improvement (Actionable Product Blueprint)</option>
+            </select>
+          </div>
+
+          {chatModeOption === 'improvement' && (
+            <span className="text-[11px] text-purple-700 font-medium bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200 flex items-center gap-1.5">
+              <span>⏳</span>
+              <span>Takes longer to respond — performing deep generative synthesis from real reviews.</span>
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Input Box */}
       <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-card flex items-center gap-2">
+        {mode === 'ai_chat' && (
+          <div className="hidden sm:block shrink-0">
+            <select
+              value={chatModeOption}
+              onChange={(e) => setChatModeOption(e.target.value as 'ask' | 'improvement')}
+              className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+            >
+              <option value="ask">🎯 Ask</option>
+              <option value="improvement">💡 Improvement</option>
+            </select>
+          </div>
+        )}
+
         <input
           type="text"
           value={query}
@@ -372,7 +436,9 @@ export default function AskEarlyEchoPage() {
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder={
             mode === 'ai_chat'
-              ? 'Ask investigator to reason through a defect, e.g. "Why is B0002CZV82 critical and how does it compare to peers?"'
+              ? (chatModeOption === 'improvement'
+                  ? 'Enter product ASIN/ID for Actionable Improvement Guide, e.g. "B0002CZV82"'
+                  : 'Ask investigator to reason through a defect, e.g. "Why is B0002CZV82 critical and how does it compare to peers?"')
               : 'Query database tables, e.g. "Show top 5 risk products with safety signals in a table"'
           }
           className="flex-1 text-xs sm:text-sm px-3 py-2 bg-transparent focus:outline-none text-slate-800 placeholder-slate-400"
@@ -381,10 +447,12 @@ export default function AskEarlyEchoPage() {
           onClick={() => handleSend()}
           disabled={loading || (!query.trim() && !selectedAsin)}
           className={`px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-sm transition flex items-center gap-1.5 disabled:opacity-40 ${
-            mode === 'ai_chat' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-brand-700 hover:bg-brand-800'
+            mode === 'ai_chat'
+              ? (chatModeOption === 'improvement' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-indigo-600 hover:bg-indigo-700')
+              : 'bg-brand-700 hover:bg-brand-800'
           }`}
         >
-          <span>Send</span>
+          <span>{chatModeOption === 'improvement' && mode === 'ai_chat' ? 'Synthesize' : 'Send'}</span>
           <span>&rarr;</span>
         </button>
       </div>

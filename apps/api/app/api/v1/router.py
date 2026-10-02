@@ -12,7 +12,9 @@ from app.api.v1 import (
     overview,
     chat,
     trends,
-    reviews
+    reviews,
+    improvements,
+    organization
 )
 
 api_router = APIRouter()
@@ -29,4 +31,7 @@ api_router.include_router(chat.router, prefix="/chat", tags=["Chat Copilot"])
 api_router.include_router(ask.router, prefix="/ask", tags=["Ask RecallRadar"])
 api_router.include_router(data_quality.router, prefix="/data-quality", tags=["Data Quality"])
 api_router.include_router(demo.router, prefix="/demo", tags=["Demo Mode"])
+api_router.include_router(improvements.router, prefix="/improvements", tags=["Improvement Insights"])
+api_router.include_router(organization.router, prefix="/organization", tags=["Organization Hold & Resume"])
+
 

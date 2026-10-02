@@ -147,6 +147,36 @@ def submit_review(payload: ReviewCreateSchema, db: Session = Depends(get_db)):
     db.refresh(review)
     db.refresh(product)
 
+    try:
+        from app.services.cache_service import CacheService
+        CacheService.invalidate("cache:product_risk_list")
+        CacheService.invalidate("cache:overview_summary")
+        CacheService.invalidate("cache:sentiment_telemetry")
+    except Exception:
+        pass
+
+    # 6. Auto-Hold Trigger: If hazard score crosses critical threshold (>= 70.0)
+    auto_hold_info = None
+    if new_risk >= 70.0:
+        try:
+            from app.services.hold_service import HoldService
+            hold_service = HoldService(db)
+            hold_rec = hold_service.trigger_auto_hold(
+                product_id=product.id,
+                risk_score=new_risk,
+                threshold=70.0,
+                reason=f"Hazard score {new_risk:.1f} crossed critical safety threshold from real-time customer review"
+            )
+            if hold_rec:
+                auto_hold_info = {
+                    "status": "ON_HOLD",
+                    "hold_id": hold_rec.id,
+                    "hazard_score": hold_rec.hazard_score,
+                    "org_notified": hold_rec.org_hold_notified
+                }
+        except Exception as e:
+            print(f"Auto-hold evaluation warning on review submit: {e}")
+
     sentiment_label = "Positive" if payload.rating >= 4.0 else ("Negative / Defect Signal" if payload.rating <= 3.0 else "Neutral")
 
     return {
@@ -170,8 +200,10 @@ def submit_review(payload: ReviewCreateSchema, db: Session = Depends(get_db)):
             "name": product.name,
             "brand": product.brand,
             "category": product.category,
-            "updated_risk_score": round(new_risk, 1)
+            "updated_risk_score": round(new_risk, 1),
+            "hold_status": auto_hold_info["status"] if auto_hold_info else "NORMAL"
         },
+        "auto_hold": auto_hold_info,
         "detected_signals": created_signals,
         "signals_count": len(created_signals)
     }

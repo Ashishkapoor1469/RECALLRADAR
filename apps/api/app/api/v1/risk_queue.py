@@ -61,6 +61,9 @@ def get_risk_queue(
     for a in all_alerts:
         alerts_by_prod.setdefault(a.product_id, []).append(a)
 
+    from app.services.hold_service import HoldService
+    hold_statuses = HoldService(db).get_bulk_hold_statuses()
+
     queue_items = []
     for p in products:
         p_signals = signals_by_prod.get(p.id, [])
@@ -88,6 +91,8 @@ def get_risk_queue(
             delta_days = (p_recall.recall_date - first_alert.triggered_at).days
             lead_time_weeks = round(max(delta_days / 7.0, 0.0), 1)
 
+        p_hold = hold_statuses.get(p.id, {"status": "NORMAL"})
+
         queue_items.append({
             "id": p.id,
             "name": p.name,
@@ -99,7 +104,11 @@ def get_risk_queue(
             "signal_count": sig_count,
             "latest_signal": latest_sig,
             "recall_status": "RECALLED" if p_recall else "MONITORING",
-            "lead_time_weeks": lead_time_weeks or (7.4 if p_recall else None)
+            "lead_time_weeks": lead_time_weeks or (7.4 if p_recall else None),
+            "hold_status": p_hold.get("status", "NORMAL"),
+            "hold_id": p_hold.get("hold_id"),
+            "hold_started_at": p_hold.get("hold_started_at"),
+            "resolved_at": p_hold.get("resolved_at")
         })
 
     # Sorting

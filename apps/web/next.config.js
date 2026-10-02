@@ -9,6 +9,19 @@ const nextConfig = {
     }
     return config;
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://recallradar-ppt.vercel.app https://earlyecho.vercel.app http://localhost:* http://127.0.0.1:*;",
+          },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     const backendUrl =
       process.env.NEXT_API_URL ||

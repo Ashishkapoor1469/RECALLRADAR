@@ -14,6 +14,12 @@ def get_shared_product_risk_list(db: Session):
     Single source of truth function for calculating composite product risk scores.
     Used by High Risk Flags, Risk Queue, and Products Needing Attention.
     """
+    from app.services.cache_service import CacheService
+    cache_key = "cache:product_risk_list"
+    cached = CacheService.get(cache_key)
+    if cached is not None:
+        return cached
+
     products = db.query(Product).all()
     all_signals = db.query(SafetySignal).all()
 
@@ -42,6 +48,9 @@ def get_shared_product_risk_list(db: Session):
     signals_by_prod: Dict[str, List[Any]] = {}
     for s in all_signals:
         signals_by_prod.setdefault(s.product_id, []).append(s)
+
+    from app.services.hold_service import HoldService
+    hold_statuses = HoldService(db).get_bulk_hold_statuses()
 
     ranked_items = []
     for p in products:
@@ -104,13 +113,24 @@ def get_shared_product_risk_list(db: Session):
             "why_flagged": why_text,
             "reason": why_text,
             "reason_flagged": why_text,
+            "hold_status": hold_statuses.get(p.id, {}).get("status", "NORMAL"),
+            "hold_started_at": hold_statuses.get(p.id, {}).get("hold_started_at"),
+            "resolved_at": hold_statuses.get(p.id, {}).get("resolved_at"),
         })
 
     ranked_items.sort(key=lambda x: (x["composite_score"], x["review_count"]), reverse=True)
+    CacheService.set(cache_key, ranked_items, ttl_seconds=30)
     return ranked_items
 
 @router.get("/summary")
+@router.get("/stats")
 def get_overview_summary(db: Session = Depends(get_db)):
+    from app.services.cache_service import CacheService
+    cache_key = "cache:overview_summary"
+    cached = CacheService.get(cache_key)
+    if cached is not None:
+        return cached
+
     try:
         total_products = db.query(Product).count()
         total_reviews = db.query(Review).count()
@@ -126,7 +146,7 @@ def get_overview_summary(db: Session = Depends(get_db)):
         last_ingest = last_review.review_date.strftime("%Y-%m-%d") if last_review else "2024-03-07"
         has_recalls = db.query(Recall).count() > 0
 
-        return {
+        result = {
             "total_products": total_products,
             "total_reviews": total_reviews,
             "total_signals": total_signals,
@@ -140,6 +160,8 @@ def get_overview_summary(db: Session = Depends(get_db)):
             "median_lead_time_weeks": 7.4 if has_recalls else None,
             "false_alarms_per_1000": 4.5
         }
+        CacheService.set(cache_key, result, ttl_seconds=30)
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database query failed: {str(e)}")
 
@@ -150,6 +172,12 @@ def get_sentiment_telemetry(
     granularity: str = Query("month"),
     db: Session = Depends(get_db)
 ):
+    from app.services.cache_service import CacheService
+    cache_key = f"cache:sentiment_telemetry:{mode}:{granularity}"
+    cached = CacheService.get(cache_key)
+    if cached is not None:
+        return cached
+
     try:
         total_reviews_cohort = db.query(Review).count()
         if total_reviews_cohort == 0:
@@ -234,7 +262,7 @@ def get_sentiment_telemetry(
         else:
             overall_pct = round((total_pos / total_reviews_cohort * 100.0), 1) if total_reviews_cohort > 0 else 0.0
 
-        return {
+        result = {
             "mode": mode,
             "average_metric_pct": overall_pct,
             "average_score": round(overall_pct / 100.0, 3),
@@ -261,6 +289,8 @@ def get_sentiment_telemetry(
                 "mode": mode
             }
         }
+        CacheService.set(cache_key, result, ttl_seconds=45)
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch sentiment telemetry: {str(e)}")
 

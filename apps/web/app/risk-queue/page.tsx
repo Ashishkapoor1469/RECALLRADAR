@@ -19,6 +19,9 @@ interface QueueItem {
   latest_signal: string;
   recall_status: string;
   lead_time_weeks: number | null;
+  hold_status?: string;
+  hold_started_at?: string;
+  resolved_at?: string;
 }
 
 function RiskQueueContent() {
@@ -98,8 +101,17 @@ function RiskQueueContent() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold shrink-0">
-          <span className="text-slate-500">Page {page} of {totalPages}</span>
+        <div className="flex items-center gap-3 shrink-0">
+          <a
+            href="https://recallradar-ppt.vercel.app/?slide=5&from=/risk-queue"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition"
+          >
+            <span>📊 Slide 5: Bayesian Math Deck</span>
+            <span className="text-[10px] text-rose-400">&rarr;</span>
+          </a>
+          <span className="text-slate-500 text-xs font-semibold">Page {page} of {totalPages}</span>
         </div>
       </div>
 
@@ -216,16 +228,32 @@ function RiskQueueContent() {
               <div>
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="flex-1 min-w-0">
-                    <span className={`inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md ${
-                      item.risk_score >= 50
-                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                        : item.risk_score >= 30
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    }`}>
-                      {item.risk_score >= 50 ? 'CRITICAL RISK' : item.risk_score >= 30 ? 'ELEVATED RISK' : 'LOW RISK'}
-                    </span>
-                    <h3 className="text-sm font-extrabold text-slate-900 mt-2 leading-snug tracking-tight line-clamp-2" title={item.name}>
+                    <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                      <span className={`inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md ${
+                        item.risk_score >= 50
+                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                          : item.risk_score >= 30
+                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      }`}>
+                        {item.risk_score >= 50 ? 'CRITICAL RISK' : item.risk_score >= 30 ? 'ELEVATED RISK' : 'LOW RISK'}
+                      </span>
+
+                      {item.hold_status === 'ON_HOLD' && (
+                        <span className="inline-flex items-center gap-1 bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm border border-rose-700 animate-pulse">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                          ON HOLD
+                        </span>
+                      )}
+
+                      {item.hold_status === 'RESOLVED' && (
+                        <span className="inline-flex items-center gap-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                          ✓ RESOLVED
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-sm font-extrabold text-slate-900 mt-1 leading-snug tracking-tight line-clamp-2" title={item.name}>
                       {item.name}
                     </h3>
                     <p className="text-xs font-semibold text-slate-500 mt-1 truncate">

@@ -208,6 +208,12 @@ def get_alert_rules(db: Session = Depends(get_db)):
                 "description": "Natural Language Directive: 'Notify safety committee if strap or mount detachment occurs'",
                 "rule_type": "Keyword Match",
                 "configuration": {"phrase": "fell out"}
+            },
+            {
+                "name": "Improvement Index Surge Directive",
+                "description": "Voice of Customer Directive: 'Alert when product Improvement Index exceeds 60 within a 2-3 week window'",
+                "rule_type": "Improvement Surge",
+                "configuration": {"window_days": 21, "threshold": 60.0, "metric": "improvement_index"}
             }
         ]
         for r in default_rules:

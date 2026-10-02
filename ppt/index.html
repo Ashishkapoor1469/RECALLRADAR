@@ -162,13 +162,19 @@
   <div class="brand">
     <div>Early<span>Echo</span></div>
     <div class="badge">RecallRadar</div>
+    <button class="btn" id="open-live-btn" onclick="openLiveAppTab()" style="margin-left: 14px; background: rgba(52, 211, 153, 0.15); border-color: rgba(52, 211, 153, 0.4); color: #34D399; font-size: 13px; padding: 6px 14px; font-weight: 700;" title="Open Live App in New Tab at current route">
+      <i class="fas fa-external-link-alt"></i> <span id="open-live-text">Open App (/)</span>
+    </button>
+    <button class="btn" id="back-nav-btn" onclick="goBackToApp()" style="margin-left: 8px; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); color: #F5F7FA; font-size: 13px; padding: 6px 12px;" title="Return to Dashboard">
+      <i class="fas fa-arrow-left"></i> <span id="back-nav-text">Back to App</span>
+    </button>
   </div>
 
   <div class="center-controls">
     <button class="btn" id="prev-btn" onclick="prevSlide()" title="Previous slide (Left Arrow)">
       <i class="fas fa-arrow-left"></i> Prev
     </button>
-    <span id="slide-counter">1 / 10</span>
+    <span id="slide-counter">1 / 12</span>
     <button class="btn" id="next-btn" onclick="nextSlide()" title="Next slide (Right Arrow / Space)">
       Next <i class="fas fa-arrow-right"></i>
     </button>
@@ -184,6 +190,8 @@
       <option value="8">Slide 8: Backtest Lab — 52 Days Lead Time Proof</option>
       <option value="9">Slide 9: Compliance — Multi-Channel Alert &amp; Audit Trail</option>
       <option value="10">Slide 10: Summary &amp; Next Steps — Turn Awareness into Action</option>
+      <option value="11">Slide 11: Improvement Insights — Consensus &amp; Actionable Blueprints</option>
+      <option value="12">Slide 12: Hold &amp; Resume — Closed-Loop Safety Governance</option>
     </select>
   </div>
 
@@ -202,7 +210,7 @@
 </div>
 
 <script>
-  const totalSlides = 10;
+  const totalSlides = 12;
   let currentSlide = 1;
 
   function resizeStage() {
@@ -221,18 +229,91 @@
   }
 
   window.addEventListener('resize', resizeStage);
-  window.addEventListener('DOMContentLoaded', resizeStage);
+  window.addEventListener('DOMContentLoaded', () => {
+    resizeStage();
+    initSlideFromUrl();
+  });
   // Quick timeout to guarantee correct viewport computation
   setTimeout(resizeStage, 50);
   setTimeout(resizeStage, 250);
 
-  function updateSlide(num) {
+  const slideRouteMap = {
+    1: '/',
+    2: '/',
+    3: '/',
+    4: '/data-quality',
+    5: '/risk-queue',
+    6: '/ask',
+    7: '/risk-queue',
+    8: '/backtest',
+    9: '/alerts',
+    10: '/',
+    11: '/improvements',
+    12: '/organization'
+  };
+
+  function openLiveAppTab() {
+    const route = slideRouteMap[currentSlide] || '/';
+    const appBase = 'https://earlyecho.vercel.app';
+    window.open(`${appBase}${route}`, '_blank');
+  }
+
+  function updateOpenButtonText() {
+    const route = slideRouteMap[currentSlide] || '/';
+    const btnText = document.getElementById('open-live-text');
+    if (btnText) {
+      btnText.textContent = `Open Live App (${route})`;
+    }
+  }
+
+  function getReturnUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('return_to') || params.get('from') || '';
+  }
+
+  function goBackToApp() {
+    const returnUrl = getReturnUrl();
+    if (returnUrl) {
+      window.location.href = returnUrl;
+    } else if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = '/';
+    }
+  }
+
+  function initSlideFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const slideParam = params.get('slide') || window.location.hash.replace('#slide', '').replace('#', '');
+    const slideNum = parseInt(slideParam, 10);
+    if (!isNaN(slideNum) && slideNum >= 1 && slideNum <= totalSlides) {
+      updateSlide(slideNum, false);
+    }
+    const returnUrl = getReturnUrl();
+    if (returnUrl) {
+      try {
+        const urlObj = new URL(returnUrl, window.location.origin);
+        const path = urlObj.pathname.replace('/', '') || 'Overview';
+        const formattedName = path.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        document.getElementById('back-nav-text').textContent = `Back to ${formattedName}`;
+      } catch (e) {}
+    }
+    updateOpenButtonText();
+  }
+
+  function updateSlide(num, updateHistory = true) {
     if (num < 1) num = 1;
     if (num > totalSlides) num = totalSlides;
     currentSlide = num;
     document.getElementById('slide-frame').src = `slide${currentSlide}.html`;
     document.getElementById('slide-counter').textContent = `${currentSlide} / ${totalSlides}`;
     document.getElementById('slide-select').value = currentSlide;
+    updateOpenButtonText();
+    if (updateHistory) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('slide', currentSlide);
+      window.history.replaceState({}, '', url.toString());
+    }
   }
 
   function prevSlide() {
@@ -264,6 +345,10 @@
     } else if (e.key.toLowerCase() === 'f') {
       toggleFullScreen();
     }
+  });
+
+  window.addEventListener('hashchange', () => {
+    initSlideFromUrl();
   });
 </script>
 

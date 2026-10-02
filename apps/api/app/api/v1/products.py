@@ -33,14 +33,22 @@ def get_products_needing_attention(
     db: Session = Depends(get_db)
 ):
     """Ranks top products by transparent attention score using shared single source of truth."""
+    from app.services.cache_service import CacheService
+    cache_key = f"cache:products_needing_attention:{limit}"
+    cached = CacheService.get(cache_key)
+    if cached is not None:
+        return cached
+
     from app.api.v1.overview import get_shared_product_risk_list
     ranked_items = get_shared_product_risk_list(db)
     top_items = ranked_items[:limit]
-    return {
+    result = {
         "items": top_items,
         "total": len(top_items),
         "limit": limit
     }
+    CacheService.set(cache_key, result, ttl_seconds=30)
+    return result
 
 @router.get("/{product_id}")
 def get_product_detail(product_id: str, db: Session = Depends(get_db)):
@@ -156,7 +164,10 @@ def get_product_detail(product_id: str, db: Session = Depends(get_db)):
     if recall and alerts:
         first_alert = sorted(alerts, key=lambda a: a.triggered_at)[0]
         delta_days = (recall.recall_date - first_alert.triggered_at).days
-        lead_time_weeks = round(max(delta_days / 7.0, 0.0), 1)
+    # Hold status lookup
+    from app.services.hold_service import HoldService
+    hold_statuses = HoldService(db).get_bulk_hold_statuses()
+    prod_hold = hold_statuses.get(product.id, {"status": "NORMAL"})
 
     return {
         "product": ProductSchema.from_orm(product),
@@ -164,6 +175,8 @@ def get_product_detail(product_id: str, db: Session = Depends(get_db)):
         "confidence": "High" if current_risk > 70 else "Medium",
         "signal_cluster": signal_cluster,
         "signal_phrases": signal_phrases,
+        "hold_status": prod_hold.get("status", "NORMAL"),
+        "hold_info": prod_hold,
         "recall": {
             "is_recalled": recall is not None,
             "recall_date": recall.recall_date.strftime("%Y-%m-%d") if recall else None,

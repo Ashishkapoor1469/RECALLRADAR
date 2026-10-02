@@ -19,7 +19,8 @@ class ChatPayload(BaseModel):
     query: Optional[str] = None
     question: Optional[str] = None
     product_id: Optional[str] = None
-    mode: Optional[str] = "rag" # "rag" or "ai_chat"
+    mode: Optional[str] = "rag"  # "rag", "ai_chat", or "improvement"
+    sub_mode: Optional[str] = None  # "ask" or "improvement"
 
 @router.post("/")
 def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
@@ -102,6 +103,59 @@ def chat_completion(payload: ChatPayload, db: Session = Depends(get_db)):
             })
             if len(similar_products) >= 4:
                 break
+
+    # ====================================================
+    # MODE: IMPROVEMENT SYNTHESIS (VOICE OF CUSTOMER GUIDE)
+    # ====================================================
+    if mode == "improvement" or payload.sub_mode == "improvement":
+        if not target_prod:
+            return {
+                "answer": "To generate an Actionable Product Improvement Guide, please enter or select a specific product ASIN or ID (e.g. B0002CZV82).",
+                "mode": "improvement",
+                "table": None,
+                "citations": [],
+                "product_detail": None,
+                "similar_products": []
+            }
+
+        from app.services.improvement_service import ImprovementService
+        imp_service = ImprovementService(db)
+        detail = imp_service.get_product_detail(target_prod.id)
+
+        product_info = {
+            "id": target_prod.external_id or target_prod.id,
+            "name": target_prod.name,
+            "brand": target_prod.brand,
+            "category": target_prod.category,
+            "risk_score": detail["metric"]["improvement_index"] if detail else 0.0,
+            "is_recalled": False,
+            "signals": [c["cluster_label"] for c in detail.get("clusters", [])] if detail else []
+        }
+
+        if not detail or not detail.get("clusters"):
+            return {
+                "answer": f"### Improvement Review Analysis for {target_prod.name}\n\nNo constructive improvement suggestions or feature requests have been recorded for this product yet. The existing customer feedback primarily contains routine evaluations.",
+                "mode": "improvement",
+                "table": None,
+                "citations": [],
+                "product_detail": product_info,
+                "similar_products": similar_products
+            }
+
+        guide_res = explanation_service.generate_improvement_guide(
+            product=detail["product"],
+            metric=detail["metric"],
+            clusters=detail["clusters"]
+        )
+
+        return {
+            "answer": guide_res["guide"],
+            "mode": "improvement",
+            "table": None,
+            "citations": guide_res.get("citations", []),
+            "product_detail": product_info,
+            "similar_products": similar_products
+        }
 
     # ==========================
     # MODE A: AI CHAT (NVIDIA NIM)

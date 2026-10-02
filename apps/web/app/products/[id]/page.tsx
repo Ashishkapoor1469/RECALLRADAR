@@ -62,6 +62,20 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             }`}>
               {riskScore >= 70 ? 'CRITICAL HAZARD CLASSIFICATION' : 'MONITORED PRODUCT'}
             </span>
+
+            {data?.hold_status === 'ON_HOLD' && (
+              <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-600 text-white shadow-sm border border-rose-700 inline-flex items-center gap-1.5 animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                PRODUCT ON HOLD — PULLED FROM SALE
+              </span>
+            )}
+
+            {data?.hold_status === 'RESOLVED' && (
+              <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm border border-emerald-700 inline-flex items-center gap-1.5">
+                ✓ RESOLVED — SALES RESTORED
+              </span>
+            )}
+
             <span className="text-[11px] text-slate-400 font-mono">ID: {prod.id || params.id}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight break-words">{prod.name || 'Product Details'}</h1>

@@ -254,3 +254,58 @@ class AuditLog(Base):
     detail = Column(JSON, nullable=True)                # e.g. parameters, metadata, actor info
 
 
+class ImprovementSignal(Base):
+    __tablename__ = "improvement_signals"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    review_id = Column(String, ForeignKey("reviews.id", ondelete="CASCADE"), nullable=False, index=True)
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    suggestion_text = Column(Text, nullable=False)
+    category = Column(String, nullable=False, index=True)
+    cluster_label = Column(String, nullable=False, index=True)
+    confidence = Column(Float, default=0.9)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    review = relationship("Review")
+    product = relationship("Product")
+
+
+class ImprovementProductMetric(Base):
+    __tablename__ = "improvement_product_metrics"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    improvement_index = Column(Float, nullable=False, default=0.0)
+    review_count = Column(Integer, default=0)
+    cluster_count = Column(Integer, default=0)
+    top_cluster = Column(String, nullable=True)
+    top_clusters = Column(JSON, nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+
+    product = relationship("Product")
+
+
+class ProductHold(Base):
+    __tablename__ = "product_holds"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    status = Column(String, nullable=False, default="ON_HOLD", index=True)  # ON_HOLD, RESOLVED, INACTIVE
+    hazard_score = Column(Float, nullable=False)
+    threshold = Column(Float, default=70.0)
+    reason = Column(Text, nullable=True)
+    evidence_citations = Column(JSON, nullable=True)
+    hold_started_at = Column(DateTime, default=datetime.utcnow, index=True)
+    resolved_at = Column(DateTime, nullable=True, index=True)
+    resolved_by = Column(String, nullable=True)
+    resolve_reason = Column(Text, nullable=True)
+    org_hold_notified = Column(Boolean, default=False)
+    org_hold_response = Column(JSON, nullable=True)
+    org_resume_notified = Column(Boolean, default=False)
+    org_resume_response = Column(JSON, nullable=True)
+    recheck_score = Column(Float, nullable=True)
+    recheck_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    product = relationship("Product")

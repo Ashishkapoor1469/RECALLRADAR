@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiUrl } from '../lib/api';
 import { useLiveData } from '../lib/useLiveData';
+import AnimatedCounter from '../components/AnimatedCounter';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -40,6 +41,7 @@ interface AttentionProduct {
   signal_count: number;
   attention_score: number;
   reason: string;
+  hold_status?: string;
 }
 
 interface QueueItem {
@@ -54,6 +56,7 @@ interface QueueItem {
   latest_signal: string;
   recall_status: string;
   lead_time_weeks: number | null;
+  hold_status?: string;
 }
 
 function OverviewPageContent() {
@@ -108,7 +111,12 @@ function OverviewPageContent() {
   const fetchSentiment = async (mode: 'positive' | 'negative', isBackground: boolean = false) => {
     if (!isBackground) setLoadingSentiment(true);
     try {
-      const res = await fetch(getApiUrl(`/api/v1/overview/sentiment-performance?mode=${mode}`));
+      let res = await fetch(getApiUrl(`/api/v1/overview/sentiment-performance?mode=${mode}`));
+      if (!res.ok) {
+        // One retry after 600ms in case backend or cache is warming up
+        await new Promise((r) => setTimeout(r, 600));
+        res = await fetch(getApiUrl(`/api/v1/overview/sentiment-performance?mode=${mode}`));
+      }
       if (res.ok) {
         const data = await res.json();
         setSentimentData(data);
@@ -123,7 +131,12 @@ function OverviewPageContent() {
   const fetchAttention = async (isBackground: boolean = false) => {
     if (!isBackground) setLoadingAttention(true);
     try {
-      const res = await fetch(getApiUrl('/api/v1/products/attention'));
+      let res = await fetch(getApiUrl('/api/v1/products/attention'));
+      if (!res.ok) {
+        // One retry after 600ms in case backend or cache is warming up
+        await new Promise((r) => setTimeout(r, 600));
+        res = await fetch(getApiUrl('/api/v1/products/attention'));
+      }
       if (res.ok) {
         const data = await res.json();
         setAttentionProducts(data.items || []);
@@ -190,7 +203,16 @@ function OverviewPageContent() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-slate-400 font-medium font-mono">Database Status:</span>
+          <a
+            href="https://recallradar-ppt.vercel.app/?slide=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition"
+          >
+            <span>📊 Slide 1: Executive Intro</span>
+            <span className="text-[10px] text-emerald-500">&rarr;</span>
+          </a>
+          <span className="text-xs text-slate-400 font-medium font-mono hidden sm:inline">Database:</span>
           <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border whitespace-nowrap ${
             error ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
           }`}>
@@ -232,7 +254,7 @@ function OverviewPageContent() {
             </div>
             <div className="mt-4">
               <div className="text-3xl font-extrabold tracking-tight">
-                {loadingSummary ? '...' : summary ? summary.total_products.toLocaleString() : '—'}
+                {loadingSummary ? '...' : summary ? <AnimatedCounter value={summary.total_products} /> : '—'}
               </div>
               <p className="text-xs text-brand-100 mt-1">Catalog items indexed</p>
             </div>
@@ -261,14 +283,14 @@ function OverviewPageContent() {
               <div className={`text-3xl font-extrabold tracking-tight transition-colors duration-1000 ${
                 recentlyUpdated ? 'text-indigo-600 animate-pulse motion-reduce:animate-none' : 'text-slate-900'
               }`}>
-                {loadingSummary ? '...' : summary ? summary.total_reviews.toLocaleString() : '—'}
+                {loadingSummary ? '...' : summary ? <AnimatedCounter value={summary.total_reviews} /> : '—'}
               </div>
               <p className="text-xs text-slate-400 mt-1">Consumer feedbacks analyzed</p>
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-slate-500">Classified Signals:</span>
-            <span className="font-bold text-indigo-600">{summary ? summary.total_signals.toLocaleString() : '—'}</span>
+            <span className="font-bold text-indigo-600">{summary ? <AnimatedCounter value={summary.total_signals} /> : '—'}</span>
           </div>
         </div>
 
@@ -290,12 +312,13 @@ function OverviewPageContent() {
               <div className={`text-3xl font-extrabold tracking-tight flex items-baseline gap-2 transition-colors duration-1000 ${
                 recentlyUpdated ? 'text-rose-600 animate-pulse motion-reduce:animate-none' : 'text-slate-900'
               }`}>
-                {loadingSummary ? '...' : summary ? summary.high_risk_count.toLocaleString() : '—'}
+                {loadingSummary ? '...' : summary ? <AnimatedCounter value={summary.high_risk_count} /> : '—'}
                 <span className="text-xs font-semibold text-rose-600">Items Flagged</span>
               </div>
               <p className="text-xs text-slate-400 mt-1">Requiring immediate audit</p>
             </div>
           </div>
+
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-slate-500">Top Risk Item:</span>
             <span className="font-bold text-rose-600 truncate max-w-[140px]" title={summary?.highest_risk_item}>
@@ -564,9 +587,20 @@ function OverviewPageContent() {
                           {item.signal_count}
                         </td>
                         <td className="py-3.5 px-4">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded border uppercase bg-slate-100 text-slate-700 border-slate-200">
-                            {item.recall_status || 'MONITORING'}
-                          </span>
+                          {item.hold_status === 'ON_HOLD' ? (
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded border uppercase bg-rose-100 text-rose-800 border-rose-300 inline-flex items-center gap-1 animate-pulse">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                              ON HOLD
+                            </span>
+                          ) : item.hold_status === 'RESOLVED' ? (
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded border uppercase bg-emerald-100 text-emerald-800 border-emerald-300">
+                              RESOLVED
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded border uppercase bg-slate-100 text-slate-700 border-slate-200">
+                              {item.recall_status || 'MONITORING'}
+                            </span>
+                          )}
                         </td>
                         <td className="py-3.5 px-5 text-right">
                           <Link
@@ -639,9 +673,16 @@ function OverviewPageContent() {
                       <div className="font-bold text-xs text-slate-900 line-clamp-2" title={p.title}>
                         {p.title}
                       </div>
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200 shrink-0">
-                        {p.attention_score.toFixed(1)} Score
-                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {p.hold_status === 'ON_HOLD' && (
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-rose-600 text-white border border-rose-700 animate-pulse">
+                            ON HOLD
+                          </span>
+                        )}
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
+                          {p.attention_score.toFixed(1)} Score
+                        </span>
+                      </div>
                     </div>
 
                     <div className="text-[11px] text-slate-500 flex items-center justify-between">
