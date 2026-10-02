@@ -48,18 +48,6 @@ export default function DataQualityPage() {
             Real-time feed monitoring across marketplace reviews, CPSC regulatory databases, and internal return telemetry.
           </p>
         </div>
-
-        <div className="shrink-0">
-          <a
-            href="https://recallradar-ppt.vercel.app/?slide=4&from=/data-quality"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition"
-          >
-            <span>📊 Slide 4: Ingestion Architecture Deck</span>
-            <span className="text-[10px] text-emerald-500">&rarr;</span>
-          </a>
-        </div>
       </div>
 
       {/* Grid of Real Ingestion Metrics Cards */}

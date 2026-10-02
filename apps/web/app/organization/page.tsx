@@ -193,19 +193,6 @@ function OrganizationContent() {
             Automated quarantine trigger based on critical hazard scores (&ge; 70.0). Manual resume flow strictly enforces live data re-verification before restoring sales distribution.
           </p>
         </div>
-
-        {/* Slide 12 Link */}
-        <div className="flex items-center gap-3">
-          <a
-            href="https://recallradar-ppt.vercel.app/?slide=12&from=/organization"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 shadow-sm hover:bg-slate-50 hover:border-slate-300 transition"
-          >
-            <span>📊 Slide 12: Hold / Resume Governance</span>
-            <span className="text-[10px] text-brand-600">&rarr;</span>
-          </a>
-        </div>
       </div>
 
       {/* KPI Stat Cards */}

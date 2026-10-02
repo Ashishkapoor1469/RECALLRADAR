@@ -203,15 +203,6 @@ function OverviewPageContent() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <a
-            href="https://recallradar-ppt.vercel.app/?slide=1"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition"
-          >
-            <span>📊 Slide 1: Executive Intro</span>
-            <span className="text-[10px] text-emerald-500">&rarr;</span>
-          </a>
           <span className="text-xs text-slate-400 font-medium font-mono hidden sm:inline">Database:</span>
           <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border whitespace-nowrap ${
             error ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200'

@@ -124,15 +124,6 @@ export default function BacktestLabPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <a
-            href="https://recallradar-ppt.vercel.app/?slide=8&from=/backtest"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition"
-          >
-            <span>📊 Slide 8: Backtest Lab Deck</span>
-            <span className="text-[10px] text-emerald-500">&rarr;</span>
-          </a>
           <button
             onClick={handleExportCSV}
             className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition flex items-center gap-1.5"

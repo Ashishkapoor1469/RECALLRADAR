@@ -205,18 +205,8 @@ export default function AskEarlyEchoPage() {
           </p>
         </div>
 
-        {/* Mode Selector Pill Toggle & Slide 6 PPT Link */}
+        {/* Mode Selector Pill Toggle */}
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          <a
-            href="https://recallradar-ppt.vercel.app/?slide=6"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition"
-          >
-            <span>📊 Slide 6: AI Copilot Deck</span>
-            <span className="text-[10px] text-indigo-400">&rarr;</span>
-          </a>
-
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 select-none">
             <button
               onClick={() => {

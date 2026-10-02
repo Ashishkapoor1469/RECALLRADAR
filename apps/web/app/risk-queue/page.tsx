@@ -102,15 +102,6 @@ function RiskQueueContent() {
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <a
-            href="https://recallradar-ppt.vercel.app/?slide=5&from=/risk-queue"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition"
-          >
-            <span>📊 Slide 5: Bayesian Math Deck</span>
-            <span className="text-[10px] text-rose-400">&rarr;</span>
-          </a>
           <span className="text-slate-500 text-xs font-semibold">Page {page} of {totalPages}</span>
         </div>
       </div>

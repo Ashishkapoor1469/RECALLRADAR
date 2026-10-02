@@ -115,15 +115,6 @@ export default function AlertsPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <a
-            href="https://recallradar-ppt.vercel.app/?slide=9&from=/alerts"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition"
-          >
-            <span>📊 Slide 9: Alerts &amp; Audit Trail</span>
-            <span className="text-[10px] text-rose-400">&rarr;</span>
-          </a>
           <button
             onClick={handleEvaluateAndDispatch}
             disabled={evaluating}

@@ -95,17 +95,6 @@ function ImprovementInsightsContent() {
             Identifies actionable product enhancements from positive/neutral reviews — separate from safety hazard alerts.
           </p>
         </div>
-
-        {/* PPT Link */}
-        <a
-          href="https://recallradar-ppt.vercel.app/?slide=11&from=/improvements"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-50 border border-violet-200 text-violet-700 hover:bg-violet-100 hover:border-violet-300 transition shrink-0"
-        >
-          <span>📊 Slide 11: Improvement Insights &amp; Synthesis</span>
-          <span className="text-[10px] text-violet-400">&rarr;</span>
-        </a>
       </div>
 
       {/* KPI Stats Cards with Animated Counters */}
