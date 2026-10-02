@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -67,6 +67,9 @@ function OverviewPageContent() {
   const [summary, setSummary] = useState<OverviewSummary | null>(null);
   const [sentimentData, setSentimentData] = useState<SentimentData | null>(null);
   const [sentimentMode, setSentimentMode] = useState<'positive' | 'negative'>('negative');
+  const [sentimentCache, setSentimentCache] = useState<{ positive?: SentimentData; negative?: SentimentData }>({});
+  const sentimentModeRef = useRef<'positive' | 'negative'>('negative');
+  sentimentModeRef.current = sentimentMode;
   const [attentionProducts, setAttentionProducts] = useState<AttentionProduct[]>([]);
   const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
   const [totalQueueItems, setTotalQueueItems] = useState<number>(0);
@@ -109,7 +112,10 @@ function OverviewPageContent() {
   };
 
   const fetchSentiment = async (mode: 'positive' | 'negative', isBackground: boolean = false) => {
-    if (!isBackground) setLoadingSentiment(true);
+    // Only display loading state if we do not already have this mode cached
+    if (!isBackground && !sentimentCache[mode]) {
+      setLoadingSentiment(true);
+    }
     try {
       let res = await fetch(getApiUrl(`/api/v1/overview/sentiment-performance?mode=${mode}`));
       if (!res.ok) {
@@ -118,13 +124,32 @@ function OverviewPageContent() {
         res = await fetch(getApiUrl(`/api/v1/overview/sentiment-performance?mode=${mode}`));
       }
       if (res.ok) {
-        const data = await res.json();
-        setSentimentData(data);
+        const data: SentimentData = await res.json();
+        setSentimentCache((prev) => ({ ...prev, [mode]: data }));
+        // Only update active chart if this response corresponds to currently active mode
+        if (sentimentModeRef.current === mode) {
+          setSentimentData(data);
+        }
       }
     } catch (e) {
       console.error('Error fetching sentiment performance:', e);
     } finally {
       if (!isBackground) setLoadingSentiment(false);
+    }
+  };
+
+  const handleSentimentModeChange = (newMode: 'positive' | 'negative') => {
+    if (newMode === sentimentMode) return;
+    setSentimentMode(newMode);
+    sentimentModeRef.current = newMode;
+
+    if (sentimentCache[newMode]) {
+      // Instant switch: 0ms delay, no loading spinner, zero network round-trip!
+      setSentimentData(sentimentCache[newMode]!);
+      setLoadingSentiment(false);
+    } else {
+      // Only fetch the sentiment chart data without touching summary, attention, or queue!
+      fetchSentiment(newMode, false);
     }
   };
 
@@ -171,13 +196,18 @@ function OverviewPageContent() {
       await Promise.all([
         fetchSummary(isBackground),
         fetchAttention(isBackground),
-        fetchSentiment(sentimentMode, isBackground),
+        fetchSentiment(sentimentModeRef.current, isBackground),
         fetchQueue(page, isBackground),
       ]);
     },
     ['reviews', 'products', 'signals', 'alerts'],
-    [page, sentimentMode]
+    [page] // NOTE: Removed sentimentMode so switching tabs never re-fetches or reloads the rest of the page!
   );
+
+  // Pre-load the alternate mode in background on mount so toggling is always instant
+  useEffect(() => {
+    fetchSentiment('positive', true);
+  }, []);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -364,7 +394,7 @@ function OverviewPageContent() {
               {/* Framer-motion Sentiment Toggle */}
               <div className="flex items-center bg-slate-100 p-1 rounded-xl w-full sm:w-auto justify-stretch sm:justify-start">
                 <button
-                  onClick={() => setSentimentMode('negative')}
+                  onClick={() => handleSentimentModeChange('negative')}
                   className={`relative flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition text-center ${
                     sentimentMode === 'negative' ? 'text-rose-700' : 'text-slate-600 hover:text-slate-900'
                   }`}
@@ -384,7 +414,7 @@ function OverviewPageContent() {
                 </button>
 
                 <button
-                  onClick={() => setSentimentMode('positive')}
+                  onClick={() => handleSentimentModeChange('positive')}
                   className={`relative flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition text-center ${
                     sentimentMode === 'positive' ? 'text-emerald-700' : 'text-slate-600 hover:text-slate-900'
                   }`}
