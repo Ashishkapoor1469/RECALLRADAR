@@ -16,7 +16,10 @@ from app.models.models import (
     AuditLog,
     ImprovementSignal,
     ImprovementProductMetric,
-    ProductHold
+    ProductHold,
+    BrandContact,
+    BrandOutreachReport,
+    BrandOutreachLog
 )
 
 __all__ = [
@@ -37,6 +40,9 @@ __all__ = [
     "AuditLog",
     "ImprovementSignal",
     "ImprovementProductMetric",
-    "ProductHold"
+    "ProductHold",
+    "BrandContact",
+    "BrandOutreachReport",
+    "BrandOutreachLog"
 ]
 

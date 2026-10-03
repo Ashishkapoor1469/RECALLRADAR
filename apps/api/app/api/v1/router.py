@@ -14,7 +14,8 @@ from app.api.v1 import (
     trends,
     reviews,
     improvements,
-    organization
+    organization,
+    brand_outreach
 )
 
 api_router = APIRouter()
@@ -33,5 +34,6 @@ api_router.include_router(data_quality.router, prefix="/data-quality", tags=["Da
 api_router.include_router(demo.router, prefix="/demo", tags=["Demo Mode"])
 api_router.include_router(improvements.router, prefix="/improvements", tags=["Improvement Insights"])
 api_router.include_router(organization.router, prefix="/organization", tags=["Organization Hold & Resume"])
+api_router.include_router(brand_outreach.router, prefix="/brand-outreach", tags=["Brand Outreach Reports"])
 
 

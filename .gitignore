@@ -20,6 +20,7 @@ recallradar.db
 # Large dataset files & CSVs
 Musical_instruments_reviews.csv/
 *.csv
+apps/api/data/brand_reports/
 
 # Python
 __pycache__/

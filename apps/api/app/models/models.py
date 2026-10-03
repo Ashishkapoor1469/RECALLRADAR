@@ -309,3 +309,53 @@ class ProductHold(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     product = relationship("Product")
+
+
+class BrandContact(Base):
+    __tablename__ = "brand_contacts"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    brand_name = Column(String, unique=True, index=True, nullable=False)
+    contact_email = Column(String, nullable=False)
+    contact_person = Column(String, nullable=True)
+    department = Column(String, default="Product Quality & Safety")
+    verified = Column(Boolean, default=True)
+    source = Column(String, default="MANUAL_VERIFIED")
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class BrandOutreachReport(Base):
+    __tablename__ = "brand_outreach_reports"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    brand_name = Column(String, index=True, nullable=False)
+    status = Column(String, default="GENERATED", index=True) # GENERATED, SENT, FAILED
+    products_scanned = Column(Integer, default=0)
+    total_reviews_analyzed = Column(Integer, default=0)
+    high_risk_products_count = Column(Integer, default=0)
+    threshold_used = Column(Float, default=50.0)
+    catalog_summary = Column(JSON, nullable=True)
+    pdf_path = Column(String, nullable=True)
+    csv_path = Column(String, nullable=True)
+    contact_email = Column(String, nullable=True)
+    email_status = Column(String, default="NOT_SENT", index=True) # NOT_SENT, SENT, FAILED
+    email_sent_at = Column(DateTime, nullable=True)
+    email_message_id = Column(String, nullable=True)
+    email_subject = Column(String, nullable=True)
+    execution_time_seconds = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class BrandOutreachLog(Base):
+    __tablename__ = "brand_outreach_logs"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    report_id = Column(String, ForeignKey("brand_outreach_reports.id", ondelete="SET NULL"), nullable=True, index=True)
+    brand_name = Column(String, index=True, nullable=False)
+    action = Column(String, index=True, nullable=False) # e.g. CATALOG_LOOKUP, HAZARD_SCORED, REPORT_GENERATED, EMAIL_DISPATCHED
+    recipient_email = Column(String, nullable=True)
+    details = Column(JSON, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
