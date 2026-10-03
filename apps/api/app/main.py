@@ -1,13 +1,12 @@
 import sys
 import os
 
-curr = os.path.abspath(os.path.dirname(__file__))
-while curr and curr != os.path.dirname(curr):
-    if os.path.exists(os.path.join(curr, "scripts", "seed_db.py")):
-        if curr not in sys.path:
-            sys.path.insert(0, curr)
-        break
-    curr = os.path.dirname(curr)
+API_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+REPO_ROOT = os.path.abspath(os.path.join(API_DIR, "..", ".."))
+for path_entry in [API_DIR, REPO_ROOT]:
+    if path_entry not in sys.path:
+        sys.path.insert(0, path_entry)
+
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

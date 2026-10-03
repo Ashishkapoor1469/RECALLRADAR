@@ -65,7 +65,6 @@ Thumbs.db
 scratch_*.json
 baseline_*.json
 
-# Seed files & local scratch test scripts
-scripts/seed*.py
+# Local scratch test scripts
 scripts/test*.py
-*seed*.py
+
